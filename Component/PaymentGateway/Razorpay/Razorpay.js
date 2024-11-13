@@ -47,7 +47,7 @@ const verifyPayment = async (response) => {
 };
 
 // Function to post bag data to myorder API
-const postOrder = async (products, jwt,payment_method,estimated_date) => {
+const postOrder = async (products, jwt,payment_method,estimated_date,formVal) => {
   try {
     // Extract required fields from each product
     const extractedProducts = products.map(product => ({
@@ -59,7 +59,8 @@ const postOrder = async (products, jwt,payment_method,estimated_date) => {
       title: product.title,
       quantity:product.quantity,
       payment_method,
-      estimated_date
+      estimated_date,
+      address:formVal
     }));
 
     console.log(extractedProducts)
@@ -109,7 +110,7 @@ const deleteOrder = async (products,jwt) => {
 
 
 
-export const handlePayment = async (amount, products,jwt,showOrderConfirm,estimated_date) => {  // Pass `router` if you use Next.js router
+export const handlePayment = async (amount, products,jwt,showOrderConfirm,estimated_date,formVal) => {  // Pass `router` if you use Next.js router
   const isScriptLoaded = await loadRazorpayScript();
   if (!isScriptLoaded) {
     console.error("Razorpay SDK failed to load");
@@ -143,7 +144,7 @@ export const handlePayment = async (amount, products,jwt,showOrderConfirm,estima
         
         if (verifyData.status) {
           console.log("Payment verification successful:", verifyData);
-          postOrder(products,jwt,"Razorpay",estimated_date)
+          postOrder(products,jwt,"Razorpay",estimated_date,formVal)
           deleteOrder(products,jwt)
           showOrderConfirm()
         } else {

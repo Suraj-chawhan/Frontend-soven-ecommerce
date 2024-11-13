@@ -330,7 +330,7 @@ async function Remove(id) {
         <span>Total</span>
         <span>₹{total.toFixed(2)}</span>
       </div>
-            <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600" onClick={()=>handlePayment(total,product,jwt,showOrderConfirmationPopup,estimated)}>
+            <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600" onClick={()=>handlePayment(total,product,jwt,showOrderConfirmationPopup,estimated,formVal.address)}>
               Confirm and Pay
             </button>
           </div>

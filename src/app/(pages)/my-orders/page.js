@@ -7,10 +7,11 @@ useEffect(()=>{
 async function call(){
 
   const jwt=localStorage.getItem("jwt")
+  const userId=localStorage.getItem("userId")
     try{
     
 
-        const res=await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/my-orders`,{
+        const res=await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/my-orders?filters[userId]=${userId}`,{
             headers:{
                 "Authorization":`Bearer ${jwt}`
             }
