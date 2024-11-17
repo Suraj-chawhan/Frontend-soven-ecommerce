@@ -1,6 +1,8 @@
 import crypto from "crypto";
-
+import { getToken } from "next-auth/jwt";
 export async function POST(req) {
+
+
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, currency,payment_method } = await req.json();
     const razorpaySecret = process.env.RAZORPAY_SECRET;
@@ -29,11 +31,11 @@ export async function POST(req) {
         },
       };
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/payments`, {
+      const response = await fetch(`/api/admin/verifyPayment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${strapiJwt}`,
+          Authorization: `Bearer ${jwtfetchfromgettoken}`,
         },
         body: JSON.stringify(paymentData),
       });

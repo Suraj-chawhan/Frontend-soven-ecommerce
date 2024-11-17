@@ -3,28 +3,36 @@
 import React, { useEffect, useState } from 'react';
 import Error from '../../../../Component/ErrorFetch/FetchError';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 function WishlistPage() {
+  
   const [product, setProduct] = useState([]);
   const [change, setChange] = useState(false);
   const [jwt, setJwt] = useState(null);
+  const { data: session } = useSession(); 
+
   useEffect(() => {
-    const jwtToken = localStorage.getItem("jwt");
-    setJwt(jwtToken);
-  }, []);
+    
+    setJwt(session?.user?.accessToken);
+  }, [session]);
 
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     if (jwt) {
       const call = async () => {
         try {
-          const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/wishlists?filters[userId][$eq]=${userId}&populate=*`,{
+          const res = await fetch(`/api/admin/wishlists`,{
             method: "GET",
             headers:{
               "Authorization": `Bearer ${jwt}`,
             }
           });
+
           const data = await res.json();
-          setProduct(data.data || []); // Set data or empty array
+        
+          const products=data?.filter(val=>val.userId===userId)
+          console.log(products)
+          setProduct(product); // Set data or empty array
         } catch (error) {
           console.error("Error fetching wishlist:", error);
         }
@@ -39,10 +47,10 @@ function WishlistPage() {
 
   // Remove item from wishlist
   async function Remove(id) {
-    alert(id)
+    alert(JSON.stringify(id))
     if (jwt) {
       try {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/wishlists/${id}`, {
+        const res = await fetch(`/api/admin/wishlists/${id}`, {
           method: "DELETE",
           headers:{
             "Authorization": `Bearer ${jwt}`,
@@ -51,7 +59,7 @@ function WishlistPage() {
 
         if (!res.ok) throw new Error(`Failed to remove item. Status: ${res.status}`);
 
-        setProduct((prevProduct) => prevProduct.filter((item) => item.id !== id));
+        setProduct((prevProduct) => prevProduct.filter((item) => item._id !== id));
         console.log(`Item with id ${id} removed successfully.`);
       } catch (error) {
         console.error("Error removing item:", error);
@@ -77,7 +85,7 @@ function WishlistPage() {
         {product.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {product.map(item => (
-              <div key={item.id} className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <div key={item._id} className="bg-white shadow-lg rounded-lg overflow-hidden">
                 <Image
                   src={item.img}
                   alt={item.name}
@@ -90,7 +98,7 @@ function WishlistPage() {
                   <p className="text-gray-600 mt-2">{item.price}</p>
                   <button
                     className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600"
-                    onClick={() => Remove(jwt ? item.id : item.wishId)} // Adjust for local storage ID
+                    onClick={() =>console.log(item)} // Adjust for local storage ID
                   >
                     Remove from Wishlist
                   </button>

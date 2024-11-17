@@ -13,10 +13,10 @@ function ContactUs() {
     async function Submit(){
      
    try{
-   const res=await fetch("http://localhost:1337/api/contactuses",{
+   const res=await fetch("/api/admin/contactus",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({data:{name,email,message}})
+    body:JSON.stringify({name,email,message})
    })
 
     if(res.ok){

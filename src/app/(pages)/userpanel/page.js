@@ -6,6 +6,8 @@ import Error from "../../../../Component/ErrorFetch/FetchError";
 import { handlePayment } from "../../../../Component/PaymentGateway/Razorpay/Razorpay";
 import { useRouter } from "next/navigation";
 import OrderConfirmationPopup from "../../../../Component/OrderConfirm";
+import { useSession } from "next-auth/react";
+
 // Shipping Form Component
 
 
@@ -51,10 +53,6 @@ function ShippingForm({ formVal, setFormVal, onProceed }) {
 
 // Order Summary Component
 function OrderSummary({ bag,Remove,updateQuantity }) {
-
-
-
-
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
@@ -71,8 +69,7 @@ function OrderSummary({ bag,Remove,updateQuantity }) {
 
 // Main Checkout Page Component
 export default function CheckoutPage() {
-    const router=useRouter()
-
+  const router=useRouter()
   const [view, setView] = useState("form");
   const [product, setProduct] = useState([]);
   const [formVal, setFormVal] = useState({});
@@ -80,9 +77,11 @@ export default function CheckoutPage() {
   const [total, setTotal] = useState(0);
   const [jwt, setJwt] = useState("");
  const[change,setChange]=useState(false)
+const{data:session}=useSession()
+
    useEffect(() => {
-    const id = localStorage.getItem("userId");
-    const jwtToken = localStorage.getItem("jwt");
+   const jwtToken=session.user.accessToken
+   const id=session.user.id
     if(!jwtToken){
       router.push("/login")
     }
@@ -149,9 +148,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     const fetchBagsFromAPI = async (jwt) => {
       try {
-        const res = await fetch(
-          `${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags?filters[userId][$eq]=${userId}&populate=*`,
-          {
+        const res = await fetch(`/api/admin/bag`,{
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${jwt}`,
@@ -161,7 +158,8 @@ export default function CheckoutPage() {
         if (!res.ok) throw new Error("Failed to fetch bag data from API");
 
         const data = await res.json();
-        setProduct(data.data);
+        const filterData=data.filter(val=>val.userId===userId)
+        setProduct(filterData);
       } catch (error) {
         console.error("Error fetching bag data:", error);
       }
@@ -188,7 +186,7 @@ async function Remove(id) {
   
     if (jwt) {
       try {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags/${id}`, {
+        const res = await fetch(`/api/admin/bag/${id}`, {
           method: "DELETE",
           headers:{
             "Authorization": `Bearer ${jwt}`,
@@ -197,7 +195,7 @@ async function Remove(id) {
   
         if (!res.ok) throw new Error(`Failed to remove item. Status: ${res.status}`);
   
-        setProduct((prevProduct) => prevProduct.filter((item) => item.id !== id));
+        setProduct((prevProduct) => prevProduct.filter((item) => item._id !== id));
         console.log(`Item with id ${id} removed successfully.`);
       } catch (error) {
         console.error("Error removing item:", error);
@@ -233,7 +231,7 @@ async function Remove(id) {
         // Delete from API
         alert(jwt)
         try {
-          const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags/${updatedProducts[index].id}`, {
+          const res = await fetch(`/api/admin/bag/${updatedProducts[index].id}`, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -273,7 +271,7 @@ async function Remove(id) {
     if (jwt) {
  
       try {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags/${updatedProducts[index].id}`, {
+        const res = await fetch(`/api/admin/bag/${updatedProducts[index].id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

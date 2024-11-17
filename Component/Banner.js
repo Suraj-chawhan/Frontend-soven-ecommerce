@@ -31,7 +31,7 @@ function Banner({images}) {
            style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
         {images.map((img, index) => (
           <div key={index} className="relative w-full h-full flex-shrink-0"  onClick={()=>router.push(`/catagories/${img.catagory.name}`)}>
-            <Image src={img.img.url} layout="fill"  alt={`Slide ${index}`} priority  />
+            <Image src={img.img} layout="fill"  alt={`Slide ${index}`} priority  />
           </div>
         ))}
       </div>

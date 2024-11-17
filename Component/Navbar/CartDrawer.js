@@ -42,7 +42,7 @@ function call(){
           <div className='flex justify-between'>
           
           <Bag key={index} index={index} product={val} updateQuantity={updateQuantity} />
-          <button className="p-3 px-6 border-2 border-gray-300 text-red-600 rounded-md self-center font-semibold hover:bg-red-500 hover:text-white hover:border-red-500 transition duration-200 ease-in-out" onClick={()=>Remove(val.id)}>Remove</button>
+          <button className="p-3 px-6 border-2 border-gray-300 text-red-600 rounded-md self-center font-semibold hover:bg-red-500 hover:text-white hover:border-red-500 transition duration-200 ease-in-out" onClick={()=>Remove(val._id)}>Remove</button>
           </div>
         )):<Error text="No Product Found"/>}
       </div>

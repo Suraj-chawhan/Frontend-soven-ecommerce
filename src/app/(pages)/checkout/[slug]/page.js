@@ -11,11 +11,11 @@ import Data from '../../../../../Component/Chekout/Data';
 import { useDispatch,useSelector } from 'react-redux';
 import { setFalse, setTrue } from '../../../../../Component/redux/cartToggle'; 
 import Link from 'next/link';
-
+import { useSession } from 'next-auth/react';
 function Page() {
   const [isOpen, setIsOpen] = useState({ a: false, b: false, c: false, cart: false });
   const { slug } = useParams();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState({});
   const [catagory, setCatagory] = useState(null);
   const [suggestion, setSuggestion] = useState("");
   const [size, setSize] = useState([]);
@@ -25,29 +25,31 @@ function Page() {
 const[userId,setUserId]=useState("")
 const[colors,setColors]=useState([])
 const [col, setCol] = useState(null);
-
+const{data:session}=useSession()
 
 function handleColorChange(event) {
   setCol(event.target.value);
 }
 
   useEffect(() => {
+  
     async function fetchData() {
       try {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/products?filters[slug][$eq]=${slug}&populate=*`);
+        const res = await fetch(`/api/admin/products`);
         const data = await res.json();
-        if (data?.data?.length > 0) {
-          setProduct(data?.data[0]);
-          setSuggestion(data?.data[0]?.catagories[0].name);
-          setSize(data?.data[0]?.size.sizes);
-          setThumbnail(data?.data[0]?.thumbnail.url);
-          const productColors = data?.data[0]?.color.colors || [];
-          setColors(productColors)
-          const enabledColors = productColors.filter((color) => color.enabled);
+       const filterData=data.filter(v=>v.slug===slug)
+      
 
-          if (enabledColors.length === 1) {
-            setCol(enabledColors[0].color);
-          }
+        if (filterData) {
+          setThumbnail(filterData[0].thumbnail);
+          setProduct(filterData[0]);
+      
+          setSuggestion(filterData[0].categories);
+          setSize(filterData[0].sizes);
+        
+          const productColors = filterData[0].colors || [];
+          setColors(productColors)
+          console.log(filterData[0].colors )
         }
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -59,21 +61,22 @@ function handleColorChange(event) {
 
 
   useEffect(()=>{
-     const userId=localStorage.getItem("userId")
-    const jwt = localStorage.getItem("jwt");
-  
-    setJwt(jwt)
-    setUserId(userId)
-  },[])
+    const id=session?.user?.id
+    const token=session?.user?.accessToken
+    
+    setJwt(token)
+    setUserId(id)
+  },[session])
 
 
   useEffect(()=>{
    
     async function call(){
       console.log(suggestion)
-      const res=await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/products?filters[catagories][name][$eq]=${suggestion}&populate=*`)
+      const res=await fetch(`/api/admin/products`)
       const data=await res.json()
-      setCatagory(data.data)
+      const filterData=data.filter(val=>val.categories===suggestion)
+      setCatagory(filterData)
       }
      call()
   },[suggestion])
@@ -93,6 +96,7 @@ function handleColorChange(event) {
 
 
   const addToBag = () => {
+    alert(product._id)
     const productData = {
       img: thumbnail,
       title: product?.title,
@@ -101,43 +105,47 @@ function handleColorChange(event) {
       quantity: 1,
       price:product?.price,
       userId: userId,
-      bagId:product?.documentId
+      bagId:product?._id
     };
   
     if (jwt) {
       async function postData() {
 
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags?filters[userId][$eq]=${userId}&filters[bagId][$eq]=${product?.documentId}`,{
+        const res = await fetch(`/api/admin/bag`,{
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${jwt}`,
           },
         });
         const data = await res.json();
-        console.log(data)
-        if (data.data.length===0) {
-          await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bag/bulk-create`, {
+        const filterData = data.filter(
+          v => v.userId === userId && v.bagId === product._id
+        );
+        
+         console.log(filterData)
+        if (filterData.length===0) {
+          await fetch(`/api/admin/bag`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${jwt}`,
             },
-            body: JSON.stringify([productData]),
+            body: JSON.stringify(productData),
           });
           dispatch(setTrue());
         } else {
       
-          const existingItemId = data.data[0].id;
-          const updatedQuantity = data.data[0].quantity + 1;
+          const existingItemId = filterData[0]._id;
+          const updatedQuantity = filterData[0].quantity + 1;
           
-          await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags/${existingItemId}`, {
+          await fetch(`/api/admin/bag/${existingItemId}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
               "Authorization": `Bearer ${jwt}`, 
             },
             body: JSON.stringify({ quantity: updatedQuantity }),
-
+          
           });
           dispatch(setTrue());
         }
@@ -146,7 +154,7 @@ function handleColorChange(event) {
     } else {
     
       const bag = JSON.parse(localStorage.getItem('bags')) || [];
-      const existingItemIndex = bag.findIndex(item => item.bagId === product.documentId);
+      const existingItemIndex = bag.findIndex(item => item.bagId === product._id);
   
       if (existingItemIndex !== -1) {
         bag[existingItemIndex].quantity += 1;
@@ -166,27 +174,28 @@ function handleColorChange(event) {
 
 
   function AddtoWishList(){
-    const userId=localStorage.getItem("userId")
+   
 
-    const productData={img:product?.thumbnail.url,wishId:product?.documentId,price:product.price,slug:product.slug,userId:userId,name:product.title}
+    const productData={img:product?.thumbnail,price:product.price,slug:product.slug,userId:userId,name:product.title}
    if (jwt) {
      
      async function postData() {
-      const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/wishlists?filters[userId][$eq]=${userId}&filters[id][$eq]=${productData.wishId}`,{
+      const res = await fetch(`/api/admin/wishlists `,{
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${jwt}`,
         },
       });
       const data = await res.json();
-      if(data.data.length===0){
-      const res=await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/wishlist/bulk-create`,{
+      const filterData=data.filter(v=>v.userId===userId && v.slug===productData.slug)
+      if(filterData.length===0){
+      const res=await fetch(`/api/admin/wishlists`,{
         method:"POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${jwt}`,
         },
-        body:JSON.stringify([productData])
+        body:JSON.stringify(productData)
       })
     }
     else{
@@ -198,7 +207,7 @@ function handleColorChange(event) {
    } else {
    
      const bag = JSON.parse(localStorage.getItem('wishlist')) || [];
-     const itemExists = bag.some(item => item.wishId === productData.wishId);
+     const itemExists = bag.some(item => item.slug === productData.slug);
      if(!itemExists){
       bag.push(productData)
       console.log(bag)
@@ -216,7 +225,7 @@ function handleColorChange(event) {
     setSelectedSize(size); 
   }
 
-
+ 
   
   return (
 
@@ -228,11 +237,11 @@ function handleColorChange(event) {
     product.sideview.map((val, index) => (
       <Image
         key={index}
-        src={val.url}
+        src={val.thumbnail}
         width={100}
         height={100}
         alt={`sideview ${index}`}
-        onClick={() => handleImageClick(val.url)}
+        onClick={() => handleImageClick(val.thumbnail)}
       />
     ))
   ) : (
@@ -256,7 +265,7 @@ function handleColorChange(event) {
           <h2 className="text-lg font-semibold">Select A Size</h2>
           <div className="flex gap-4 mt-2">
           {size.map((val) =>
-            val.enable ? (
+            val.enabled ? (
               <Button
                 key={val.size}
                 val={val.size}
@@ -280,11 +289,11 @@ function handleColorChange(event) {
               <option
                 key={color.color}
                 value={color.color}
-                style={{ backgroundColor: color.code }}
+                
               >
                 {color.color}
               </option>
-            ) : null
+            ) :<option>No color</option>
           )}
         </select>
       </div>
@@ -298,9 +307,9 @@ function handleColorChange(event) {
             <Button val={"Add To WishList"} enable={true} onClick={AddtoWishList}  />
           </div>
         </div>
-        <Description isOpen={isOpen.a} call={() => call(1)} val={product?.description[0].children[0].text} title={"Description"} />
-        <Description isOpen={isOpen.b} call={() => call(2)} val={product?.moreinformation[0].children[0].text} title={"More Information"} />
-        <Description isOpen={isOpen.c} call={() => call(3)} val={product?.returnexchange[0].children[0].text} title={"Return Exchange"} />
+        <Description isOpen={isOpen.a} call={() => call(1)} val={product?.description} title={"Description"} />
+        <Description isOpen={isOpen.b} call={() => call(2)} val={product?.moreInformation} title={"More Information"} />
+        <Description isOpen={isOpen.c} call={() => call(3)} val={product?.returnExchange} title={"Return Exchange"} />
       </div>
 
       
@@ -308,7 +317,7 @@ function handleColorChange(event) {
     <h1 className='font-bold text-4xl self-center'>You May Like</h1>
     <div className='flex gap-2'>
     {
-      catagory?.map((val,i)=>(<Link href={`/checkout/${val.slug}`} key={i}><Cart key={i} size={val.size.sizes} title={val.title} img={val.thumbnail.url}  slug={val.slug} price={val.price} /></Link>))
+      catagory?.map((val,i)=>(<Link href={`/checkout/${val.slug}`} key={i}><Cart key={i} size={val.sizes} title={val.title} img={val.thumbnail}  slug={val.slug} price={val.price} /></Link>))
       }
       </div>
     </div>

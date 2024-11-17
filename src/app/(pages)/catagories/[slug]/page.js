@@ -19,20 +19,20 @@ function Page() {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
 
-  const [query, setQuery] = useState(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/catagories?filters[name]=${slug}&populate[products][populate]=*`);
+  const [query, setQuery] = useState(`/api/admin/products`);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch(query);
-        const { data } = await res.json();
-        const fetchedProducts = data[0]?.products || [];
+        const data = await res.json();
+        const filterData=data.filter(val=>val.slug===slug)
 
-        setSizes(fetchedProducts[0]?.size.sizes);
-        setColors(fetchedProducts[0]?.color.colors);
+        setSizes(filterData?.sizes);
+        setColors(filterData?.colors);
 
-        setProducts(fetchedProducts);
-        setOriginalProducts(fetchedProducts);
+        setProducts(filterData);
+        setOriginalProducts(filterData);
       } catch (err) {
         console.error(err);
       }
@@ -47,21 +47,23 @@ function Page() {
     
     let filteredProducts = originalProducts;
 
-    if (selectedSizes.length > 0) {
-      filteredProducts = filteredProducts.filter(product => 
-        product.size && product.size.sizes && product.size.sizes.some(sizeObj => 
-          selectedSizes.includes(sizeObj.size) && sizeObj.enable === true
-        )
-      );
-    }
+  // Filter by sizes
+  if (selectedSizes.length > 0) {
+    filteredProducts = filteredProducts.filter(product =>
+      product.sizes.some(sizeObj =>
+        selectedSizes.includes(sizeObj.size) && sizeObj.enabled === true
+      )
+    );
+  }
 
-    if (selectedColors.length > 0) {
-      filteredProducts = filteredProducts.filter(product => 
-        product.color && product.color.colors && product.color.colors.some(colorObj => 
-          selectedColors.includes(colorObj.color) && colorObj.enabled === true
-        )
-      );
-    }
+  // Filter by colors
+  if (selectedColors.length > 0) {
+    filteredProducts = filteredProducts.filter(product =>
+      product.colors.some(colorObj =>
+        selectedColors.includes(colorObj.color) && colorObj.enabled === true
+      )
+    );
+  }
 
     if (price[0].v) {
       filteredProducts = filteredProducts.filter(product => product.price < 999);

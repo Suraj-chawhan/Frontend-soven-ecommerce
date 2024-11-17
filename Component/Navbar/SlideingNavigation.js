@@ -6,20 +6,20 @@ import { FaTimes, FaUser } from 'react-icons/fa'
 import Link from 'next/link'
 import {FaInstagram, FaLinkedin, FaFacebook, FaYoutube, FaPinterest, FaTwitter } from 'react-icons/fa';
 import gsap from 'gsap';
-
+import { signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 function SlideingNavigation({isNavOpen,auth,setAuth,setIsNavOpen,product}) {
 
     const router=useRouter()
-
+    const { data: session } = useSession(); 
      
     const navRef=useRef()
 
 
+
     function Logout(){
-      localStorage.removeItem("userId")
-      localStorage.removeItem("jwt")
-       setAuth(false)
-       
+      signOut()
+    
     }
 
  useEffect(()=>{
@@ -27,6 +27,7 @@ function SlideingNavigation({isNavOpen,auth,setAuth,setIsNavOpen,product}) {
   if(isNavOpen){
     gsap.fromTo(navRef.current.children,{y:0,opacity:0},{y:10,opacity:1,delay:0.2})
   }
+
   },[isNavOpen])
     
   return (
@@ -40,7 +41,7 @@ function SlideingNavigation({isNavOpen,auth,setAuth,setIsNavOpen,product}) {
       <div className='flex justify-between items-center'>
     <div>
     
-    {auth ?(
+    {session?(
       <button className="block w-full text-left py-2 flex gap-2" onClick={Logout}>
         <FaUser className="inline-block mr-2" />
         <h1 className='font-bold'> Logout</h1>

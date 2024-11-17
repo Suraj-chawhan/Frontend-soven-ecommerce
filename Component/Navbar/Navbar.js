@@ -10,7 +10,7 @@ import Image from "next/image";
 import CartDrawer from "./CartDrawer.js";
 import BottomNavigationMobile from "./BottomNavigationMobile.js";
 import SlideingNavigation from "./SlideingNavigation.js";
-
+import { useSession } from "next-auth/react";
   
 const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -22,7 +22,7 @@ const Navbar = () => {
  const[jwt,setJwt]=useState(null)
  const[userId,setUserId]=useState('')
   const isToggled = useSelector((state) => state.toggle.isToggled);
-
+ const{data:session}=useSession()
   const router = useRouter();
 
   const dispatch = useDispatch();
@@ -30,8 +30,8 @@ const Navbar = () => {
 
   // Fetch and set jwt and userId from localStorage
 useEffect(() => {
-  const jwt = localStorage.getItem("jwt");
-  const id = localStorage.getItem("userId");
+  const jwt = session?.user.accessToken
+  const id = session?.user.id
 
   if (jwt) setJwt(jwt);
   if (id) setUserId(id);
@@ -55,7 +55,7 @@ const syncDataToStrapi = async (jwt) => {
     try {
       const parsedData = JSON.parse(data);
       
-      const existingRes = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags?filters[userId][$eq]=${userId}`,{
+      const existingRes = await fetch(`/api/admin/bag`,{
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${jwt}`,  // Add this line
@@ -81,7 +81,7 @@ const syncDataToStrapi = async (jwt) => {
       const updatedNewData = newData.map(item => ({ ...item, userId }));
 
       if (updatedNewData.length > 0) {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bag/bulk-create`, {
+        const res = await fetch(`/api/admin/bag`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -117,15 +117,16 @@ const syncDataToStrapiWishList = async (jwt) => {
     try {
       const parsedData = JSON.parse(data);
     
-      const existingRes = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/wishlists?filters[userId][$eq]=${userId}`,{   
+      const existingRes = await fetch(`/api/wishlists`,{   
          headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${jwt}`,  // Add this line
       },});
       const existingData = await existingRes.json();
-      console.log("exist "+existingData)
+      const newExistingData=existingData.filter(v=>v.userId===userId)
+
       const newData = parsedData.filter(newItem => 
-        !existingData.data.some(existingItem => 
+        !newExistingData.data.some(existingItem => 
           existingItem.img === newItem.img &&
           existingItem.title === newItem.title &&
           existingItem.color === newItem.color &&
@@ -137,7 +138,7 @@ const syncDataToStrapiWishList = async (jwt) => {
       console.log( JSON.stringify(newData));
       const updatedNewData = newData.map(item => ({ ...item, userId }));
       if (updatedNewData.length > 0) {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/wishlist/bulk-create`, {
+        const res = await fetch(`/api/wishlist`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -179,7 +180,7 @@ const syncDataToStrapiWishList = async (jwt) => {
 
   const fetchBagsFromAPI = async (jwt) => {
     try {
-      const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags?filters[userId][$eq]=${userId}&populate=*`,{
+      const res = await fetch(`/api/admin/bag`,{
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${jwt}`,  // Add this line
@@ -188,8 +189,10 @@ const syncDataToStrapiWishList = async (jwt) => {
       if (!res.ok) throw new Error("Failed to fetch bag data from API");
 
       const data = await res.json();
-      setProduct(data.data);
-      console.log("Fetched bag data:", data.data);
+      const filterData=data.filter(v=>v.userId===userId)
+      setProduct(filterData);
+      console.log("Bag"+filterData)
+      console.log("Fetched bag data:", data);
     } catch (error) {
       console.error("Error fetching bag data:", error);
     }
@@ -246,7 +249,7 @@ const syncDataToStrapiWishList = async (jwt) => {
       if (jwt) {
         // Delete from API
         try {
-          const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags/${updatedProducts[index].id}`, {
+          const res = await fetch(`/api/admin/bags/${updatedProducts[index].id}`, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -285,7 +288,7 @@ const syncDataToStrapiWishList = async (jwt) => {
     if (jwt) {
       // Update quantity in API if jwt is available
       try {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags/${updatedProducts[index].id}`, {
+        const res = await fetch(`/api/admin/bag/${updatedProducts[index].id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -313,7 +316,7 @@ async function Remove(id) {
   if (jwt) {
     alert("jwt present")
     try {
-      const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags/${id}`, {
+      const res = await fetch(`/api/admin/bag/${id}`, {
         method: "DELETE",
         headers:{
           "Authorization": `Bearer ${jwt}`,
@@ -322,7 +325,7 @@ async function Remove(id) {
 
       if (!res.ok) throw new Error(`Failed to remove item. Status: ${res.status}`);
 
-      setProduct((prevProduct) => prevProduct.filter((item) => item.id !== id));
+      setProduct((prevProduct) => prevProduct.filter((item) => item._id !== id));
       console.log(`Item with id ${id} removed successfully.`);
     } catch (error) {
       console.error("Error removing item:", error);

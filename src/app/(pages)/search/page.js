@@ -10,13 +10,13 @@ function Page() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState([]);
-  const [url, setUrl] = useState(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/products?populate=*`);
+  const [url, setUrl] = useState(`${ process.env.NEXT_PUBLIC_API_URL}/api/admin/products`);
  const[catagories,setCatagories]=useState([])
   useEffect(() => {
     const fetchProducts = async () => {
       let api = "";
       if (searchTerm) {
-        api = `${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/products?filters[title][$contains]=${searchTerm.toLowerCase()}&populate=*`;
+        api = `/api/products?filters[title][$contains]=${searchTerm.toLowerCase()}&populate=*`;
         setUrl(api);
       }
 
@@ -26,7 +26,7 @@ function Page() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setProducts(data.data);
+        setProducts(data);
       } catch (error) {
         console.error('Error fetching products:', error);
         setProducts([]);
@@ -36,12 +36,13 @@ function Page() {
     fetchProducts();
   }, [searchTerm]);
 
+
   useEffect(() => {
     async function fetchData() {
-      const res = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/catagories?filters[name]=${selectedCategory}&populate[products][populate]=*`);
+      const res = await fetch(`/api/admin/products`);
       const data= await res.json();
-        
-      setProducts(data?.data[0]?.products);
+        const categoriesProduct=data.filter(v=>v.categories===selectedCategory)
+      setProducts(categoriesProduct);
     }
     fetchData();
   }, [selectedCategory]);
@@ -52,9 +53,9 @@ function Page() {
 
   useEffect(()=>{
     async function f(){
-      const res=await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/catagories`);
+      const res=await fetch(`/api/admin/categories`);
       const data=await res.json()
-      setCatagories(data.data)
+      setCatagories(data)
     }
    f()
   },[])

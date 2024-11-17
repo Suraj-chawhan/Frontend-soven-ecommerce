@@ -1,24 +1,27 @@
 "use client"
 import React, { useEffect,useState } from 'react';
 import Error from '../../../../Component/ErrorFetch/FetchError';
+import { useSession } from 'next-auth/react';
 const MyOrdersPage = () => {
 const[orders,setOrders]=useState([])
+const {data:session}=useSession()
 useEffect(()=>{
 async function call(){
 
-  const jwt=localStorage.getItem("jwt")
-  const userId=localStorage.getItem("userId")
+  const jwt=session.user.accessToken
+  const userId=session.user.id
     try{
     
 
-        const res=await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/my-orders?filters[userId]=${userId}`,{
+        const res=await fetch(`/api/admin/my-orders`,{
             headers:{
                 "Authorization":`Bearer ${jwt}`
             }
         })
         const data=await res.json()
-     
-        setOrders(data.data)
+         const newOrders=data.filter(v=>v.userId===userId)
+        setOrders(newOrders)
+
     }catch(err){
         console.log(err)
     }
