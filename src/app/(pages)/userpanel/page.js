@@ -7,6 +7,8 @@ import { handlePayment } from "../../../../Component/PaymentGateway/Razorpay";
 import { useRouter } from "next/navigation";
 import OrderConfirmationPopup from "../../../../Component/OrderConfirm";
 import { useSession } from "next-auth/react";
+import LoadingPage from "../../../../Component/LoadingPage";
+import NotLoggedInPage from "../../../../Component/NotLoggedIn";
 
 // Shipping Form Component
 
@@ -67,6 +69,8 @@ function OrderSummary({ bag,Remove,updateQuantity }) {
   );
 }
 
+
+
 // Main Checkout Page Component
 export default function CheckoutPage() {
   const router=useRouter()
@@ -77,7 +81,7 @@ export default function CheckoutPage() {
   const [total, setTotal] = useState(0);
   const [jwt, setJwt] = useState("");
  const[change,setChange]=useState(false)
-const{data:session}=useSession()
+const{data:session,status}=useSession()
 
    useEffect(() => {
 
@@ -144,9 +148,7 @@ const{data:session}=useSession()
   useEffect(()=>{
     const jwtToken=session?.user?.accessToken
     const id=session?.user?.userId
-     if(!jwtToken){
-       router.push("/login")
-     }
+    
      setUserId(id);
      setJwt(jwtToken);
   },[session])
@@ -308,7 +310,13 @@ async function Remove(id) {
 //Temp estimated
   const [estimated, setEstimated] = useState(null);
 
+if(status==="loading"){
+  return <LoadingPage/>
+}
 
+  if(!session){
+    return <NotLoggedInPage/>
+  }
   return (
     <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-100 min-h-screen">
 
