@@ -16,7 +16,7 @@ const fetchData = async (amount) => {
   const res = await fetch("/api/razorpay/getkey");
   const data = await res.json();
   const getkey = data.key;
-
+  
   const re1 = await fetch("/api/razorpay/createOrder", {
     method: "POST",
     headers: {
@@ -26,31 +26,26 @@ const fetchData = async (amount) => {
   });
 
   const data2 = await re1.json();
-  return { getkey, order: data2.order };
+  return { getkey, order:data2.order };
 };
 
 const verifyPayment = async (response) => {
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = response;
+ console.log(response)
   const verifyRes = await fetch("/api/razorpay/verify", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-    }),
+    body: JSON.stringify(response),
   });
 
   return await verifyRes.json();
 };
 
-// Function to post bag data to myorder API
 const postOrder = async (products, jwt,payment_method,estimated_date,formVal) => {
   try {
     // Extract required fields from each product
-    const extractedProducts = products.map(product => ({
+    const extractedProducts = products?.map(product => ({
       size: product.size,
       color: product.color,
       userId: product.userId,
@@ -66,7 +61,7 @@ const postOrder = async (products, jwt,payment_method,estimated_date,formVal) =>
     console.log(extractedProducts)
     console.log(jwt)
 
-    const response = await fetch(`${ process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/my-order/bulk-create`, {
+    const response = await fetch(`${ process.env.NEXT_PUBLIC_API_URL}/api/admin/my-orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +83,7 @@ const deleteOrder = async (products,jwt) => {
   try {
     // Loop through each product's ID
     for (const product of products) {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/bags/${product.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/bag/${product._id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -110,7 +105,7 @@ const deleteOrder = async (products,jwt) => {
 
 
 
-export const handlePayment = async (amount, products,jwt,showOrderConfirm,estimated_date,formVal) => {  // Pass `router` if you use Next.js router
+export const handlePayment = async (amount, products,jwt,showOrderConfirm,estimated_date,formVal,userId) => {  // Pass `router` if you use Next.js router
   const isScriptLoaded = await loadRazorpayScript();
   if (!isScriptLoaded) {
     console.error("Razorpay SDK failed to load");
@@ -119,14 +114,16 @@ export const handlePayment = async (amount, products,jwt,showOrderConfirm,estima
 
   try {
     const { getkey, order } = await fetchData(amount);
+       
+   
     const options = {
       key: getkey,
-      amount: order.amount,
+      amount:order.amount,
       currency: "INR",
       name: "Acme Corp",
       description: "Test Transaction",
       order_id: order.id,
-      callback_url: "/api/razorpay/verify",
+      callback_url:"/api/razorpay/verify",
       prefill: {
         name: "Gaurav Kumar",
         email: "gaurav.kumar@example.com",
@@ -138,8 +135,13 @@ export const handlePayment = async (amount, products,jwt,showOrderConfirm,estima
       theme: {
         color: "#3399cc",
       },
+
+ 
+
       handler:async function (response) {
-       const  updatedResponse={...response,payment_method:"Razorpay"}
+        console.log("Options"+options)
+
+       const  updatedResponse={...response,payment_method:"Razorpay",userId,order_status:"pending",amount:order.amount}
         const verifyData = await verifyPayment(updatedResponse);
         
         if (verifyData.status) {

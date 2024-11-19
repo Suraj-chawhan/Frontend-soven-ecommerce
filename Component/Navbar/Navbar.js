@@ -28,16 +28,15 @@ const Navbar = () => {
   const dispatch = useDispatch();
 
 
-  // Fetch and set jwt and userId from localStorage
 useEffect(() => {
   const jwt = session?.user.accessToken
-  const id = session?.user.id
+  const id = session?.user.userId
+   console.log("Session"+session)
+ setJwt(jwt);
+  setUserId(id);
 
-  if (jwt) setJwt(jwt);
-  if (id) setUserId(id);
-
-  if (jwt) setAuth(true);  // Set auth state if jwt is present
-}, []);
+  if (jwt) setAuth(true);  
+}, [session]);
 
 // Trigger syncDataToStrapi after both jwt and userId are set
 useEffect(() => {
@@ -187,9 +186,11 @@ const syncDataToStrapiWishList = async (jwt) => {
         },
       })
       if (!res.ok) throw new Error("Failed to fetch bag data from API");
-
+   
       const data = await res.json();
+      console.log("Before filter bag"+JSON.stringify(data))
       const filterData=data.filter(v=>v.userId===userId)
+      console.log("After filter bag"+filterData)
       setProduct(filterData);
       console.log("Bag"+filterData)
       console.log("Fetched bag data:", data);
@@ -249,7 +250,7 @@ const syncDataToStrapiWishList = async (jwt) => {
       if (jwt) {
         // Delete from API
         try {
-          const res = await fetch(`/api/admin/bags/${updatedProducts[index].id}`, {
+          const res = await fetch(`/api/admin/bags/${updatedProducts[index]._id}`, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -288,7 +289,7 @@ const syncDataToStrapiWishList = async (jwt) => {
     if (jwt) {
       // Update quantity in API if jwt is available
       try {
-        const res = await fetch(`/api/admin/bag/${updatedProducts[index].id}`, {
+        const res = await fetch(`/api/admin/bag/${updatedProducts[index]._id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",

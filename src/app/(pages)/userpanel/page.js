@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Bag from "../../../../Component/Order";
 import Error from "../../../../Component/ErrorFetch/FetchError";
-import { handlePayment } from "../../../../Component/PaymentGateway/Razorpay/Razorpay";
+import { handlePayment } from "../../../../Component/PaymentGateway/Razorpay";
 import { useRouter } from "next/navigation";
 import OrderConfirmationPopup from "../../../../Component/OrderConfirm";
 import { useSession } from "next-auth/react";
@@ -58,7 +58,7 @@ function OrderSummary({ bag,Remove,updateQuantity }) {
       <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
       <div className="flex flex-col gap-4 h-full overflow-scroll">
         {bag.length > 0 ? (
-          bag.map((val, index) => <Bag key={index} index={index} product={val} Remove={Remove} updateQuantity={updateQuantity} />)
+          bag.map((val, index) => <Bag key={index} index={index} product={val} Remove={()=>Remove(val._id)} updateQuantity={updateQuantity} />)
         ) : (
           <Error text="No Product Found" />
         )}
@@ -80,13 +80,7 @@ export default function CheckoutPage() {
 const{data:session}=useSession()
 
    useEffect(() => {
-   const jwtToken=session.user.accessToken
-   const id=session.user.id
-    if(!jwtToken){
-      router.push("/login")
-    }
-    setUserId(id);
-    setJwt(jwtToken);
+
 
     const savedAddress = localStorage.getItem("address");
     if (savedAddress) {
@@ -145,6 +139,18 @@ const{data:session}=useSession()
    
   }, []);
 
+
+
+  useEffect(()=>{
+    const jwtToken=session?.user?.accessToken
+    const id=session?.user?.userId
+     if(!jwtToken){
+       router.push("/login")
+     }
+     setUserId(id);
+     setJwt(jwtToken);
+  },[session])
+
   useEffect(() => {
     const fetchBagsFromAPI = async (jwt) => {
       try {
@@ -159,6 +165,7 @@ const{data:session}=useSession()
 
         const data = await res.json();
         const filterData=data.filter(val=>val.userId===userId)
+        console.log(filterData)
         setProduct(filterData);
       } catch (error) {
         console.error("Error fetching bag data:", error);
@@ -174,8 +181,9 @@ const{data:session}=useSession()
   };
 
   useEffect(() => {
-    const totalAmount = product.reduce((acc, val) => acc + val.price * val.quantity, 0);
+    const totalAmount = product?.reduce((acc, val) => acc + val.price * val.quantity, 0);
     setTotal(totalAmount);
+   
   }, [product]);
 
 
@@ -196,7 +204,7 @@ async function Remove(id) {
         if (!res.ok) throw new Error(`Failed to remove item. Status: ${res.status}`);
   
         setProduct((prevProduct) => prevProduct.filter((item) => item._id !== id));
-        console.log(`Item with id ${id} removed successfully.`);
+        
       } catch (error) {
         console.error("Error removing item:", error);
       }
@@ -226,10 +234,8 @@ async function Remove(id) {
     } else if (updatedProducts[index].quantity > 1) {
       updatedProducts[index].quantity -= 1;
     } else if (updatedProducts[index].quantity === 1 && !isIncrement) {
-      // Quantity is 0, remove from the bag
+  
       if (jwt) {
-        // Delete from API
-        alert(jwt)
         try {
           const res = await fetch(`/api/admin/bag/${updatedProducts[index].id}`, {
             method: "DELETE",
@@ -245,12 +251,12 @@ async function Remove(id) {
           console.error("Error deleting item from API:", error);
         }
       } else {
-        // Remove from local storage
+      
         updatedProducts.splice(index, 1);
         localStorage.setItem("bags", JSON.stringify(updatedProducts));
         console.log("Item removed from local storage");
       }
-      // Update state after deletion
+    
       setProduct(updatedProducts);
       return;
     }
@@ -298,16 +304,11 @@ async function Remove(id) {
           router.push("/my-orders");
       }, 3000);
   }
-  
 
 //Temp estimated
   const [estimated, setEstimated] = useState(null);
 
 
-
-  
-  
- 
   return (
     <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-100 min-h-screen">
 
@@ -328,7 +329,7 @@ async function Remove(id) {
         <span>Total</span>
         <span>₹{total.toFixed(2)}</span>
       </div>
-            <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600" onClick={()=>handlePayment(total,product,jwt,showOrderConfirmationPopup,estimated,formVal.address)}>
+            <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600" onClick={()=>handlePayment(total,product,jwt,showOrderConfirmationPopup,estimated,formVal.address,userId)}>
               Confirm and Pay
             </button>
           </div>

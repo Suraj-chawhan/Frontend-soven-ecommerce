@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken';
 import Bag from '../../../../../Component/Admin/Mongodb/MongodbSchema/bagSchema';
 import connectDB from '../../../../../Component/Admin/Mongodb/Connect';
 // Helper function to verify JWT
-async function verifyToken(req) {
+const verifyToken = (req) => {
 
-  await connectDB()
   const token = req.headers.get('Authorization')?.split(' ')[1]; // Assuming Bearer token
+
   if (!token) {
     throw new Error('Authentication token missing');
   }
@@ -17,12 +17,14 @@ async function verifyToken(req) {
   } catch (err) {
     throw new Error('Invalid or expired token');
   }
-}
+};
+
 
 export async function POST(req) {
+  await connectDB()
   try {
     // Verify the JWT first
-    await verifyToken(req);
+    const user =verifyToken(req);
 
     const data = await req.json();
 
@@ -48,7 +50,7 @@ export async function POST(req) {
 export async function GET(req) {
   try {
     // Verify the JWT first
-    await verifyToken(req);
+   const user=  verifyToken(req);
 
     const data = await Bag.find();
     return new Response(JSON.stringify(data), { status: 200 });

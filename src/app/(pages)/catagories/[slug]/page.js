@@ -19,17 +19,19 @@ function Page() {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
 
-  const [query, setQuery] = useState(`/api/admin/products`);
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(query);
+        const res = await fetch("/api/admin/products");
         const data = await res.json();
-        const filterData=data.filter(val=>val.slug===slug)
 
-        setSizes(filterData?.sizes);
-        setColors(filterData?.colors);
+
+        const filterData=data.filter(val=>val.categories===slug)
+       console.log(data)
+        data?setSizes(data[0]?.sizes):""
+        data?setColors(data[0]?.colors):""
 
         setProducts(filterData);
         setOriginalProducts(filterData);
@@ -49,7 +51,7 @@ function Page() {
 
   // Filter by sizes
   if (selectedSizes.length > 0) {
-    filteredProducts = filteredProducts.filter(product =>
+    filteredProducts = filteredProducts?.filter(product =>
       product.sizes.some(sizeObj =>
         selectedSizes.includes(sizeObj.size) && sizeObj.enabled === true
       )
@@ -58,7 +60,7 @@ function Page() {
 
   // Filter by colors
   if (selectedColors.length > 0) {
-    filteredProducts = filteredProducts.filter(product =>
+    filteredProducts = filteredProducts?.filter(product =>
       product.colors.some(colorObj =>
         selectedColors.includes(colorObj.color) && colorObj.enabled === true
       )
@@ -167,7 +169,7 @@ function Page() {
           <div className="grid grid-cols-3 gap-8">
             {products?.map((val, index) => (
               <Link href={`/checkout/${val.slug}`} key={index}>
-                <Cart title={val.title} img={val.thumbnail.url} size={val.size.sizes} slug={val.slug} price={val.price} />
+                <Cart title={val.title} img={val.thumbnail} size={val.sizes} slug={val.slug} price={val.price} />
               </Link>
             ))}
           </div>

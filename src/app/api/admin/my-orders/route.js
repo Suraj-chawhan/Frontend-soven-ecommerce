@@ -48,9 +48,9 @@ export async function GET(req) {
   try {
     // Verify JWT token
     const user = verifyToken(req); // Token is verified here
-
+     console.log("GET call my order")
     const data = await myOrder.find();
-    return new Response(JSON.stringify(data), { status: 200 });
+    return new Response(JSON.stringify(data));
   } catch (err) {
     return new Response(
       JSON.stringify({ message: err.message || "An error occurred" }),

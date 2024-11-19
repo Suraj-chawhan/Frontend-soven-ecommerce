@@ -5,29 +5,55 @@ import { useSession } from 'next-auth/react';
 const MyOrdersPage = () => {
 const[orders,setOrders]=useState([])
 const {data:session}=useSession()
+
+const[userId,setUserId]=useState("")
+const [jwt,setJwt]=useState("")
 useEffect(()=>{
+
+
+if(jwt){
 async function call(){
 
-  const jwt=session.user.accessToken
-  const userId=session.user.id
     try{
     
 
-        const res=await fetch(`/api/admin/my-orders`,{
+        const res=await fetch("/api/admin/my-orders",{
+          method:"GET",
             headers:{
                 "Authorization":`Bearer ${jwt}`
             }
         })
         const data=await res.json()
+        console.log("My order"+JSON.stringify(data))
          const newOrders=data.filter(v=>v.userId===userId)
+ console.log("filter"+newOrders)
         setOrders(newOrders)
 
     }catch(err){
         console.log(err)
     }
+   
 }
 call()
-},[])
+}
+
+
+else{
+  setOrders([])
+}
+
+
+
+},[jwt])
+
+
+useEffect(()=>{
+
+  const jwt=session?.user?.accessToken
+  const id=session?.user?.userId
+  setJwt(jwt)
+  setUserId(id)
+},[session])
 
 if(!orders)return <Error  text={"No orders Found"} />
 

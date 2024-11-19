@@ -94,7 +94,9 @@ function Product() {
     try {
       const response = await fetch("/api/admin/categories");
       const data = await response.json();
-      setCategories(data);
+    
+      data?setCategories(data):setCategories([])
+    
     } catch (error) {
       console.error("Failed to fetch products:", error);
     }
@@ -197,6 +199,22 @@ function Product() {
   }
 
 
+  function Back(){
+    setSelectedProduct(null)
+    setTitle("");
+    setSlug("");
+    setPrice("");
+    setQuantity("");
+    setSizes("");
+    setColors("");
+    setThumbnail(null);
+    setSideImages([]);
+    setSelectedCategories("");
+    setReturnExchange("")
+    setDescription("")
+    setMoreInformation("")
+  }
+
   return (
     <div className="admin-panel p-6 bg-gray-100 rounded-lg shadow-lg max-w-7xl mx-auto flex gap-8 text-gray-700">
   {/* Product List */}
@@ -258,7 +276,7 @@ function Product() {
       </h1>
       {selectedProduct && (
         <button
-          onClick={() => setSelectedProduct(null)}
+          onClick={Back}
           className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border transition"
         >
           Back
@@ -366,7 +384,7 @@ function Product() {
         className="border rounded p-3 text-gray-700 bg-white"
       >
         <option value="">Select Categories</option>
-        {categories.map((category) => (
+        {categories?.map((category) => (
           <option key={category._id} value={category.name}>
             {category.name}
           </option>

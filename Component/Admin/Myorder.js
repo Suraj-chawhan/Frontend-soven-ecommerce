@@ -85,7 +85,7 @@ function MyOrder() {
               <th className="px-4 py-2 text-left">Payment Method</th>
               <th className="px-4 py-2 text-left">Estimated Date</th>
               <th className="px-4 py-2 text-left">Address</th>
-              <th className="px-4 py-2 text-left">Actions</th>
+            
             </tr>
           </thead>
           <tbody>
@@ -101,14 +101,7 @@ function MyOrder() {
                   <td className="px-4 py-2">{order.payment_method}</td>
                   <td className="px-4 py-2">{new Date(order.estimated_date).toLocaleDateString()}</td>
                   <td className="px-4 py-2">{order.address}</td>
-                  <td className="px-4 py-2">
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-2 hover:bg-blue-600 transition">
-                      Edit
-                    </button>
-                    <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
-                      Delete
-                    </button>
-                  </td>
+                 
                 </tr>
               ))
             ) : (

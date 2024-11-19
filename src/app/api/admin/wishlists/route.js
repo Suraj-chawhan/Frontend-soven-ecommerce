@@ -28,11 +28,16 @@ export async function POST(req) {
     const requestData = await req.json();
 
     if (Array.isArray(requestData)) {
-      await Wishlist.insertMany(requestData);
+      try {
+        await Wishlist.insertMany(requestData, { ordered: false }); // `ordered: false` skips duplicates
+      } catch (err) {
+        console.error("Insert Many Error:", err.message);
+      }
     } else {
-      const wish = new Wishlist(requestData); // Use the data directly
+      const wish = new Wishlist(requestData);
       await wish.save();
     }
+    
 
     return new Response(JSON.stringify({ message: "success" }), { status: 200 });
   } catch (err) {

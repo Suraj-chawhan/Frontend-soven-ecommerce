@@ -10,14 +10,15 @@ function WishlistPage() {
   const [change, setChange] = useState(false);
   const [jwt, setJwt] = useState(null);
   const { data: session } = useSession(); 
-
+  const[userId,setUserId]=useState("")
   useEffect(() => {
     
     setJwt(session?.user?.accessToken);
+    setUserId(session?.user?.userId)
   }, [session]);
 
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+   
     if (jwt) {
       const call = async () => {
         try {
@@ -32,7 +33,8 @@ function WishlistPage() {
         
           const products=data?.filter(val=>val.userId===userId)
           console.log(products)
-          setProduct(product); // Set data or empty array
+
+          setProduct(products); // Set data or empty array
         } catch (error) {
           console.error("Error fetching wishlist:", error);
         }

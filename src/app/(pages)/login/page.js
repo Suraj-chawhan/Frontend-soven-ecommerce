@@ -12,15 +12,12 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    let jwt = localStorage.getItem("jwt");
-    if (jwt) {
-      router.push("/");
-    }
-  }, [router]);
 
-
-
+ useEffect(()=>{
+if(session){
+  router.push("/")
+}
+ },[session,router])
   const initiateGoogleLogin = async () => {
     const result = await signIn("google", { callbackUrl: '/' });
     if (result?.error) {
@@ -73,7 +70,7 @@ export default function Login() {
             Login
           </button>
           {error && <p className="text-red-500 text-center">{error}</p>}
-          <h1 onClick={() => router.push("/signup")} className='text-blue-500'>Don't have an account?</h1>
+          <h1 onClick={() => router.push("/signup")} className='text-blue-500'>{"Don't have an account?"}</h1>
         </div>
       </div>
     </div>

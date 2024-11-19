@@ -1,7 +1,6 @@
 import mongoose from "mongoose"
 const schema=new mongoose.Schema({
     title: { type: String},
-    slug: { type: String, unique: true },
     price: { type: Number },
     quantity: { type: Number },
     img:{type:String},

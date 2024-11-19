@@ -1,58 +1,91 @@
 import crypto from "crypto";
 import { getToken } from "next-auth/jwt";
+
 export async function POST(req) {
-
-
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, currency,payment_method } = await req.json();
-    const razorpaySecret = process.env.RAZORPAY_SECRET;
-    const strapiJwt = process.env.NEXT_PUBLIC_STRAPI_JWT;
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      amount,
+      currency,
+      payment_method,
+      userId,
+    } = await req.json();
 
-    if (!razorpaySecret || !strapiJwt) {
-      console.error("Environment variables missing: RAZORPAY_SECRET or STRAPI_JWT");
+
+
+    console.log(
+      "Received Data:",
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      amount,
+      currency,
+      payment_method,
+      userId
+    );
+
+    const razorpaySecret = process.env.RAZORPAY_SECRET;
+    const token = await getToken({ req });
+ console.log(token)
+    if (!razorpaySecret || !process.env.NEXT_PUBLIC_API_URL || !token) {
+      console.error("Environment variables missing or token not found");
       return new Response(
-        JSON.stringify({ message: "Missing environment variables" }),
+        JSON.stringify({ message: "Missing environment variables or unauthorized" }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
+    // Verify Razorpay signature
     const hmac = crypto.createHmac("sha256", razorpaySecret);
     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const generated_signature = hmac.digest("hex");
+
     if (generated_signature === razorpay_signature) {
+      // Prepare payment data
       const paymentData = {
-        data: {
-          razorpay_order_id,
-          razorpay_payment_id,
-          amount,
-          currency,
-          order_status: "success",
-          payment_method,
-        },
+        razorpay_order_id,
+        razorpay_payment_id,
+        amount,
+        currency,
+        payment_method,
+        userId,
+        order_status: "success",
       };
 
-      const response = await fetch(`/api/admin/verifyPayment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwtfetchfromgettoken}`,
-        },
-        body: JSON.stringify(paymentData),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/admin/verifyPayment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token.accessToken}`,
+          },
+          body: JSON.stringify(paymentData),
+        }
+      );
+
       if (!response.ok) {
-        const errorMessage = await response.text(); // Get the error message from Strapi
-        console.error("Failed to save payment data to Strapi:", errorMessage);
+        const errorMessage = await response.text();
+        console.error("Failed to save payment data in Strapi:", errorMessage);
         return new Response(
-          JSON.stringify({ message: "Payment verification successful, but data storage failed", error: errorMessage }),
+          JSON.stringify({
+            message: "Payment verified, but failed to save data",
+            error: errorMessage,
+          }),
           { status: 500, headers: { "Content-Type": "application/json" } }
         );
       }
+
       return new Response(
-        JSON.stringify({ message: "Payment verified and stored successfully",status:true}),
-    );
+        JSON.stringify({ message: "Payment verified and saved successfully", status: true }),
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
     } else {
+      console.error("Signature verification failed");
       return new Response(
-        JSON.stringify({ message: "Signature verification failed" }),
+        JSON.stringify({ message: "Invalid payment signature" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }

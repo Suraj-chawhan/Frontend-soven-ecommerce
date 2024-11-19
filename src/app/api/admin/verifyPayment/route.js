@@ -2,14 +2,18 @@ import PaymentVerify from "../../../../../Component/Admin/Mongodb/MongodbSchema/
 import connectDB from "../../../../../Component/Admin/Mongodb/Connect";
 import jwt from 'jsonwebtoken';
 
-// Token verification function
+// Helper function to verify JWT token
 const verifyToken = (req) => {
-  const token = req.headers.get('Authorization')?.split(' ')[1]; // Assuming Bearer token
-
-  if (!token) {
-    throw new Error('Authentication token missing');
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    throw new Error('Authorization header is missing');
   }
-a
+
+  const token = authHeader.split(' ')[1]; // Assuming Bearer token format
+  if (!token) {
+    throw new Error('Authentication token is missing');
+  }
+
   try {
     // Verify the token using your secret key
     const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
@@ -23,17 +27,23 @@ export async function POST(req) {
   await connectDB();
   try {
     // Verify the JWT token
-    const user = verifyToken(req); // Token is verified here
+    const user = verifyToken(req);
 
-    const { razorpay_order_id, razorpay_payment_id, amount, currency, order_status, payment_method } = await req.json();
+    // Parse request body
+ const data= await req.json();
 
-    const paymentData = new PaymentVerify({
-      razorpay_order_id, razorpay_payment_id, amount, currency, order_status, payment_method
-    });
+    console.log('Payment Data:', data);
+
+    // Save payment details to the database
+    const paymentData = new PaymentVerify(data);
     await paymentData.save();
 
-    return new Response(JSON.stringify({ message: "Payment data stored successfully" }), { status: 200 });
+    return new Response(
+      JSON.stringify({ message: "Payment data stored successfully" }),
+      { status: 200 }
+    );
   } catch (err) {
+    console.error('Error in POST:', err.message);
     return new Response(
       JSON.stringify({ message: err.message || "Failed to store payment data" }),
       { status: 500 }
@@ -45,11 +55,13 @@ export async function GET(req) {
   await connectDB();
   try {
     // Verify the JWT token
-    const user = verifyToken(req); // Token is verified here
+    const user = verifyToken(req);
 
-    const data = await PaymentVerify.find();
+    // Retrieve payment data for the authenticated user
+    const data = await PaymentVerify.find({ userId: user.id });
     return new Response(JSON.stringify(data), { status: 200 });
   } catch (err) {
+    console.error('Error in GET:', err.message);
     return new Response(
       JSON.stringify({ message: err.message || "Failed to retrieve payment data" }),
       { status: 500 }

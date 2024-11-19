@@ -61,7 +61,7 @@ function handleColorChange(event) {
 
 
   useEffect(()=>{
-    const id=session?.user?.id
+    const id=session?.user?.userId
     const token=session?.user?.accessToken
     
     setJwt(token)
@@ -98,58 +98,72 @@ function handleColorChange(event) {
   const addToBag = () => {
     alert(product._id)
     const productData = {
-      img: thumbnail,
+      img: product?.thumbnail,
       title: product?.title,
-      color:col,
+      color: col,
       size: selectedSize,
       quantity: 1,
-      price:product?.price,
+      price: product?.price,
       userId: userId,
-      bagId:product?._id
+      bagId: product?._id,
     };
+    
   
     if (jwt) {
       async function postData() {
-
-        const res = await fetch(`/api/admin/bag`,{
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${jwt}`,
-          },
-        });
-        const data = await res.json();
-        const filterData = data.filter(
-          v => v.userId === userId && v.bagId === product._id
-        );
-        
-         console.log(filterData)
-        if (filterData.length===0) {
-          await fetch(`/api/admin/bag`, {
-            method: "POST",
+        try {
+          const res = await fetch(`/api/admin/bag`, {
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${jwt}`,
+              Authorization: `Bearer ${jwt}`,
             },
-            body: JSON.stringify(productData),
           });
-          dispatch(setTrue());
-        } else {
       
-          const existingItemId = filterData[0]._id;
-          const updatedQuantity = filterData[0].quantity + 1;
-          
-          await fetch(`/api/admin/bag/${existingItemId}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${jwt}`, 
-            },
-            body: JSON.stringify({ quantity: updatedQuantity }),
-          
-          });
-          dispatch(setTrue());
+          if (!res.ok) throw new Error(`Fetch error: ${res.statusText}`);
+      
+          const data = await res.json();
+          console.log("Product Data"+JSON.stringify(productData))
+          const filterData = data.filter(
+            (v) =>
+              v.userId === userId &&
+              v.bagId === product._id &&
+              v.size === productData.size &&
+              v.color === productData.color
+          );
+      
+          if (filterData.length === 0) {
+            console.log("No data")
+            const res=await fetch(`/api/admin/bag`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${jwt}`,
+              },
+              body: JSON.stringify(productData),
+            });
+            const data=res.json()
+            if(res.ok){console.log("Ok")}
+            else{console.log(data)}
+            dispatch(setTrue());
+          } else {
+            const existingItemId = filterData[0]._id;
+            const updatedQuantity = filterData[0].quantity + 1;
+      
+            await fetch(`/api/admin/bag/${existingItemId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${jwt}`,
+              },
+              body: JSON.stringify({ quantity: updatedQuantity }),
+            });
+            dispatch(setTrue());
+          }
+        } catch (error) {
+          console.error("Error in postData:", error);
         }
       }
+      
       postData();
     } else {
     
@@ -176,20 +190,27 @@ function handleColorChange(event) {
   function AddtoWishList(){
    
 
-    const productData={img:product?.thumbnail,price:product.price,slug:product.slug,userId:userId,name:product.title}
+    const productData={title:product?.title,img:product?.thumbnail,price:product?.price,slug:product.slug,userId:userId}
    if (jwt) {
      
      async function postData() {
-      const res = await fetch(`/api/admin/wishlists `,{
+      const res = await fetch("/api/admin/wishlists",{
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${jwt}`,
         },
       });
+      
       const data = await res.json();
-      const filterData=data.filter(v=>v.userId===userId && v.slug===productData.slug)
+   console.log("Fetch data"+JSON.stringify(data))
+
+      const filterData=data.filter(v=>v.slug===productData.slug && v.userId===userId )
+
+   console.log(filterData)
       if(filterData.length===0){
-      const res=await fetch(`/api/admin/wishlists`,{
+        console.log("no data")
+       console.log(productData)
+         const res=await fetch(`/api/admin/wishlists`,{
         method:"POST",
         headers: {
           "Content-Type": "application/json",
@@ -284,7 +305,7 @@ function handleColorChange(event) {
           className="p-2 border border-gray-300 rounded-md"
         >
           <option value="" disabled>Select Color</option>
-          {colors.map((color) =>
+          {colors.map((color,index) =>
             color.enabled ? (
               <option
                 key={color.color}
@@ -293,7 +314,7 @@ function handleColorChange(event) {
               >
                 {color.color}
               </option>
-            ) :<option>No color</option>
+            ) :<option key={index}>No color</option>
           )}
         </select>
       </div>

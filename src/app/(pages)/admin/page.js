@@ -8,46 +8,38 @@ import User from "../../../../Component/Admin/User";
 import Myorder from "../../../../Component/Admin/Myorder";
 import PaymentVerify from "../../../../Component/Admin/PaymentVerify";
 import BannerAdmin from "../../../../Component/Admin/BannerAdmin";
+import GoogleUser from "../../../../Component/Admin/GoogleuserLogs";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import NotLoggedInPage from "../../../../Component/NotLoggedIn";
+import LoadingPage from "../../../../Component/LoadingPage";
 
 export default function AdminPanel() {
   const [section, setSection] = useState("dashboard");
-
-  // Data for dashboard counts fetched from API
-  const [orderCount, setOrderCount] = useState(0);
-  const [productCount, setProductCount] = useState(0);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [newCustomers, setNewCustomers] = useState(0);
-  const [error, setError] = useState(null);
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   const handleSectionChange = (newSection) => {
     setSection(newSection);
   };
 
   useEffect(() => {
-    // Fetch dashboard data when the component is mounted
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/admin/dashboard", {
-          method: "GET",
-          headers: {
-            // Assuming a session-based token or some form of authentication
-            Authorization: `Bearer YOUR_JWT_TOKEN`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        const data = await response.json();
-        setOrderCount(data.ordersCount);
-        setProductCount(data.productsCount);
-        setTotalRevenue(data.totalRevenue);
-        setNewCustomers(data.newCustomersCount);
-      } catch (err) {
-        setError(err.message);
-      }
-    };
-    fetchData();
-  }, []);
+    if (status === "loading") return; // Avoid unnecessary redirects while loading
+
+    if (session?.user?.role !== "admin") {
+      router.push("/"); // Redirect to homepage if not logged in or not admin
+    }
+  }, [session, router, status]);
+
+  // Show loading page while session status is "loading"
+  if (status === "loading") {
+    return <LoadingPage />;
+  }
+
+  // Show "Not Logged In" page if no valid session
+  if (!session) {
+    return <NotLoggedInPage />;
+  }
 
   return (
     <div className="flex min-h-screen font-sans bg-gray-900 text-white">
@@ -90,26 +82,24 @@ export default function AdminPanel() {
             onClick={() => handleSectionChange("bannerAdmin")}
             isSelected={section === "bannerAdmin"}
           />
+          <SidebarButton
+            label="Google user data"
+            onClick={() => handleSectionChange("google-user-logs")}
+            isSelected={section === "google-user-logs"}
+          />
         </nav>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-10 bg-gray-900">
-        {section === "dashboard" && (
-          <Dashboard
-            orderCount={orderCount}
-            productCount={productCount}
-            totalRevenue={totalRevenue}
-            newCustomers={newCustomers}
-            error={error}
-          />
-        )}
+        {section === "dashboard" && <Dashboard />}
         {section === "categories" && <Categories />}
         {section === "products" && <Product />}
         {section === "users" && <User />}
         {section === "my-orders" && <Myorder />}
         {section === "payment-verify" && <PaymentVerify />}
         {section === "bannerAdmin" && <BannerAdmin />}
+        {section === "google-user-logs" && <GoogleUser />}
       </main>
     </div>
   );

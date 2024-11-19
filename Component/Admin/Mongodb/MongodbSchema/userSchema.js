@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt"
 
+const rolesEnum = ["user", "admin"];
+
 const user=new mongoose.Schema({
     name:{type:String},
     lastName:{type:String},
     email:{type:String},
-    password:{type:String}
+    password:{type:String},
+    userRole: { type: String, enum: rolesEnum, default: "user" },
+    
 })
 
 
@@ -17,3 +21,4 @@ user.pre("save", async function (next) {
 
 const User=mongoose.models.User || mongoose.model("User",user)
 export default User
+

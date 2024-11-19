@@ -8,10 +8,13 @@ export async function POST(req) {
       key_id:process.env.RAZORPAY_ID,
       key_secret:process.env.RAZORPAY_SECRET,
     });
+
+
     const options = {
       amount: amount*100,
       currency: "INR",
     };
+    
     const order = await instance.orders.create(options);
     return new Response(JSON.stringify({ order }), {
       status: 200,

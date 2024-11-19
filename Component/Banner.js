@@ -29,8 +29,8 @@ function Banner({images}) {
     <div className={`relative w-full h-screen overflow-hidden z-10`}>
       <div className="w-full h-full flex transition-transform duration-500"
            style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-        {images.map((img, index) => (
-          <div key={index} className="relative w-full h-full flex-shrink-0"  onClick={()=>router.push(`/catagories/${img.catagory.name}`)}>
+        {images?.map((img, index) => (
+          <div key={index} className="relative w-full h-full flex-shrink-0">
             <Image src={img.img} layout="fill"  alt={`Slide ${index}`} priority  />
           </div>
         ))}
