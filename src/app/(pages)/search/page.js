@@ -6,8 +6,9 @@ import Cart from '../../../../Component/Cart';
 import Link from 'next/link';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-
+import { useRouter } from 'next/navigation';
 function Page() {
+  const router=useRouter()
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [allProducts, setAllProducts] = useState([]);
@@ -85,6 +86,12 @@ function Page() {
 
   return (
     <div className="flex h-full flex-col gap-8 p-8 bg-gray-50">
+         <button
+  onClick={() => router.back()}
+  className="self-start mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+>
+  ← Go Back
+</button>
       {/* Search Bar */}
       <div className="w-full max-w-lg mx-auto flex items-center bg-white rounded-full shadow-lg p-4">
         <FaSearch className="mr-4 text-gray-400" />

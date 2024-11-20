@@ -256,6 +256,13 @@ function handleColorChange(event) {
   return (
 
     <div className='flex flex-col gap-4 w-[100%] h-[100%]'>
+      <button
+  onClick={() => router.back()}
+  className="self-start mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+>
+  ← Go Back
+</button>
+
     <div className="flex gap-8 mx-auto p-4 lg:p-8 border-b-2 border-gray-300 w-full h-full">
       <div  className='flex gap-4  h-full' >
      <div className='flex flex-col gap-4 overflow-y-auto'>

@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Error from "../../../../Component/ErrorFetch/FetchError";
 import LoadingPage from "../../../../Component/LoadingPage";
-
+import { useRouter } from "next/navigation";
 const MyOrdersPage = () => {
+  const router=useRouter()
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,20 +54,39 @@ const MyOrdersPage = () => {
 
 
 if(status==="loading"){
-  return <LoadingPage/>
+  return <div><LoadingPage/></div>
 }
 
 
   if (error) {
-    return <Error text={error} />;
+    return <div><button
+    onClick={() => router.back()}
+    className=" mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+  >
+    ← Go Back
+  </button><Error text={error} /></div>;
   }
 
   if (!orders.length) {
-    return <Error text="No orders found." />;
+    return <div><button
+    onClick={() => router.back()}
+    className=" mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+  >
+    ← Go Back
+  </button><Error text="No orders found." /></div>
   }
 
   return (
     <div className="container mx-auto p-4">
+      <button
+  onClick={() => router.back()}
+  className=" mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+>
+  ← Go Back
+</button>
+         <button
+  onClick={() => router.back()}
+  className="self-start mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105">← Go Back</button>
       <h1 className="text-3xl font-bold mb-6 text-center">My Orders</h1>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {orders.map((order) => (

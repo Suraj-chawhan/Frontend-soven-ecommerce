@@ -4,7 +4,7 @@
 import React,{useRef} from 'react'
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useAnimations, useGLTF } from "@react-three/drei";
-
+import { useRouter } from 'next/navigation';
 
 
 function Model(){
@@ -31,8 +31,10 @@ return(
 
 
 function Error({text}) {
+
      return(
         <div className="w-full h-[100vh] flex flex-col justify-center items-center  h-[100px]">
+  
           <Canvas className='h-[50%]'>
           <hemisphereLight intensity={2} color={"orange"}/>
           <Model/>

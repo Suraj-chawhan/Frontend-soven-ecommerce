@@ -123,11 +123,12 @@ const {status}=useSession()
   return (
     <div className="container mx-auto px-4 py-8">
        <button
-        onClick={() => router.back()}
-        className="mb-4 text-blue-500 underline hover:text-blue-700"
-      >
-        Go Back
-      </button>
+  onClick={() => router.back()}
+  className="mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+>
+  ← Go Back
+</button>
+
 
       <div className="grid grid-cols-4 gap-8">
         {/* Filters Section */}

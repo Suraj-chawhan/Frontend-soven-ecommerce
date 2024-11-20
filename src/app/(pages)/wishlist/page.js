@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 import Error from '../../../../Component/ErrorFetch/FetchError';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 function WishlistPage() {
-  
+   const router=useRouter()
   const [product, setProduct] = useState([]);
   const [change, setChange] = useState(false);
   const [jwt, setJwt] = useState(null);
@@ -82,6 +83,12 @@ function WishlistPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      <button
+  onClick={() => router.back()}
+  className=" mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+>
+  ← Go Back
+</button>
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">My Wishlist</h1>
 

@@ -319,7 +319,12 @@ if(status==="loading"){
   }
   return (
     <div className="flex flex-col md:flex-row gap-8 p-8 bg-gray-100 min-h-screen">
-
+     <button
+  onClick={() => router.back()}
+  className="self-start mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+>
+  ← Go Back
+</button>
       {view === "payment" && (
         <aside className="md:w-[70%]">
           <OrderSummary bag={product} total={total} Remove={Remove} updateQuantity={updateQuantity} />

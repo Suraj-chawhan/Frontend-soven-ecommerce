@@ -44,6 +44,7 @@ export default function AdminPanel() {
 
   return (
     <div className="flex min-h-screen font-sans bg-gray-900 text-white">
+      
       {/* Sidebar */}
       <aside className="w-1/4 bg-gradient-to-b from-purple-700 to-purple-900 text-white flex flex-col items-center py-8 shadow-lg">
         <h2 className="text-3xl font-semibold mb-8">Admin Panel</h2>
