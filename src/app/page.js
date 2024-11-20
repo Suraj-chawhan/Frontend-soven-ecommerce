@@ -12,8 +12,9 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NotLoggedInPage from "../../Component/NotLoggedIn";
 import LoadingPage from "../../Component/LoadingPage";
-
-
+import { useDispatch } from "react-redux";
+import { setAdminFalse } from "../../Component/redux/adminSlice";
+import { useSelector } from "react-redux";
 
 
 export default function Home() {
@@ -24,12 +25,17 @@ export default function Home() {
   const [images, setImages] = useState([]);
   const [recentProducts, setRecentProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const isAdminInitialRedirect = useSelector((state) => state.initialAdmin.isAdmin);
   const { data: session,status } = useSession(); // Use `status` to handle session state
   const router = useRouter();
+ const dispatch=useDispatch()
 
-
-
+  useEffect(()=>{
+if(session?.user?.role==="admin" && isAdminInitialRedirect){
+  router.push("/admin")
+  dispatch(setAdminFalse())
+}
+  },[session])
 
 
   useEffect(() => {
