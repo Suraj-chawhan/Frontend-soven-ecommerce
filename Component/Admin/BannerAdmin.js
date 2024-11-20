@@ -65,7 +65,7 @@ function BannerAdmin() {
         const newBanner = await response.json();
         setBanners((prevBanners) => [...prevBanners, newBanner]); // Add new banner to list
         alert('Banner uploaded successfully!');
-    
+    setFlag(v=>!v)
     } catch (error) {
       console.error('Error posting banner:', error);
       alert('Error uploading banner');
