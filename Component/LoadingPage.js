@@ -5,13 +5,7 @@ function LoadingPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="text-center">
         {/* Logo or Icon */}
-        <div className="mb-6">
-          <img
-            src="/logo.jpg" // Replace with your brand logo
-            alt="Loading..."
-            className="w-24 h-24 mx-auto animate-pulse"
-          />
-        </div>
+       
 
         {/* Spinner */}
         <div className="relative w-16 h-16 mx-auto mb-4">

@@ -49,11 +49,11 @@ useEffect(() => {
 
 const syncDataToStrapi = async (jwt) => {
   const data = localStorage.getItem("bags");
-
   if (data) {
     try {
       const parsedData = JSON.parse(data);
-      
+      console.log("parsed data"+parsedData)
+       console.log(data)
       const existingRes = await fetch(`/api/admin/bag`,{
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const syncDataToStrapi = async (jwt) => {
       console.log("Existing data: ", existingData);
 
       const newData = parsedData.filter(newItem => 
-        !existingData.data.some(existingItem => 
+        !existingData.some(existingItem => 
           existingItem.img === newItem.img &&
           existingItem.title === newItem.title &&
           existingItem.color === newItem.color &&
@@ -78,8 +78,7 @@ const syncDataToStrapi = async (jwt) => {
       console.log("New data to sync: ", JSON.stringify(newData));
 
       const updatedNewData = newData.map(item => ({ ...item, userId }));
-
-      if (updatedNewData.length > 0) {
+       console.log("updated"+updatedNewData)
         const res = await fetch(`/api/admin/bag`, {
           method: "POST",
           headers: {
@@ -87,18 +86,16 @@ const syncDataToStrapi = async (jwt) => {
             "Authorization": `Bearer ${jwt}`,  // Add this line
           },
           body: JSON.stringify(updatedNewData),
-       
-        
-        });
+        })
+
 
         if (!res.ok) throw new Error("Failed to sync new data to Strapi");
 
         const responseData = await res.json();
         console.log("New data synced successfully:", responseData);
         localStorage.removeItem("bags");
-      } else {
-        console.log("No new data to sync");
-      }
+    
+      
     } catch (error) {
       console.error("Error syncing data to Strapi:", error);
     }
@@ -116,7 +113,7 @@ const syncDataToStrapiWishList = async (jwt) => {
     try {
       const parsedData = JSON.parse(data);
     
-      const existingRes = await fetch(`/api/wishlists`,{   
+      const existingRes = await fetch(`/api/admin/wishlists`,{   
          headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${jwt}`,  // Add this line
@@ -125,7 +122,7 @@ const syncDataToStrapiWishList = async (jwt) => {
       const newExistingData=existingData.filter(v=>v.userId===userId)
 
       const newData = parsedData.filter(newItem => 
-        !newExistingData.data.some(existingItem => 
+        !newExistingData.some(existingItem => 
           existingItem.img === newItem.img &&
           existingItem.title === newItem.title &&
           existingItem.color === newItem.color &&
@@ -136,8 +133,8 @@ const syncDataToStrapiWishList = async (jwt) => {
       );
       console.log( JSON.stringify(newData));
       const updatedNewData = newData.map(item => ({ ...item, userId }));
-      if (updatedNewData.length > 0) {
-        const res = await fetch(`/api/wishlist`, {
+     
+        const res = await fetch(`/api/admin/wishlists`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -151,9 +148,7 @@ const syncDataToStrapiWishList = async (jwt) => {
         const responseData = await res.json();
         console.log("New data synced successfully:", responseData);
         localStorage.removeItem("wishlist")
-      } else {
-        console.log("No new data to sync");
-      }
+      
     } catch (error) {
       console.error("Error syncing data to Strapi:", error);
     }

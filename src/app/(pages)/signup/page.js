@@ -75,7 +75,7 @@ export default function Signup() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <h1>{session?.name+ "" +session?.email}</h1>
+ 
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex justify-center items-center mb-6 border border-black p-2 rounded-full">
           <Image src="/google.png" width={40} height={40} alt="google" />

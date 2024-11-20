@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Cart from '../../../../../Component/Cart'
 import Link from 'next/link'
-
+import { useSession } from 'next-auth/react'
 function Page() {
   const { slug } = useParams();
   const [sizes, setSizes] = useState([]);
@@ -18,8 +18,7 @@ function Page() {
   const [originalProducts, setOriginalProducts] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
-
-
+const {status}=useSession()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +28,7 @@ function Page() {
 
 
         const filterData=data.filter(val=>val.categories===slug)
-       console.log(data)
+   
         data?setSizes(data[0]?.sizes):""
         data?setColors(data[0]?.colors):""
 
@@ -103,6 +102,14 @@ function Page() {
       }
     });
   };
+
+
+
+  
+  if(status==="loading"){
+    return <LoadingPage/>
+  }
+ 
 
   return (
     <div className="container mx-auto px-4 py-8">

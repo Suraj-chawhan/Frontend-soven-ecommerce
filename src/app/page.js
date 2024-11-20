@@ -12,6 +12,10 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NotLoggedInPage from "../../Component/NotLoggedIn";
 import LoadingPage from "../../Component/LoadingPage";
+
+
+
+
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);

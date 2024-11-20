@@ -45,7 +45,8 @@ const handler = NextAuth({
             throw new Error('Invalid credentials.');
           }
 
-          // Return user data if valid
+          // Return user data if 
+          console.log(user.role)
           return {
             id: user._id.toString(),
             name: user.name,

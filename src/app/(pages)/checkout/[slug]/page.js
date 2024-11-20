@@ -12,6 +12,7 @@ import { useDispatch,useSelector } from 'react-redux';
 import { setFalse, setTrue } from '../../../../../Component/redux/cartToggle'; 
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import LoadingPage from '../../../../../Component/LoadingPage';
 function Page() {
   const [isOpen, setIsOpen] = useState({ a: false, b: false, c: false, cart: false });
   const { slug } = useParams();
@@ -25,7 +26,7 @@ function Page() {
 const[userId,setUserId]=useState("")
 const[colors,setColors]=useState([])
 const [col, setCol] = useState(null);
-const{data:session}=useSession()
+const{data:session,status}=useSession()
 
 function handleColorChange(event) {
   setCol(event.target.value);
@@ -96,7 +97,7 @@ function handleColorChange(event) {
 
 
   const addToBag = () => {
-    alert(product._id)
+
     const productData = {
       img: product?.thumbnail,
       title: product?.title,
@@ -122,7 +123,7 @@ function handleColorChange(event) {
           if (!res.ok) throw new Error(`Fetch error: ${res.statusText}`);
       
           const data = await res.json();
-          console.log("Product Data"+JSON.stringify(productData))
+          
           const filterData = data.filter(
             (v) =>
               v.userId === userId &&
@@ -202,14 +203,14 @@ function handleColorChange(event) {
       });
       
       const data = await res.json();
-   console.log("Fetch data"+JSON.stringify(data))
+   
 
       const filterData=data.filter(v=>v.slug===productData.slug && v.userId===userId )
 
-   console.log(filterData)
+ 
       if(filterData.length===0){
         console.log("no data")
-       console.log(productData)
+ 
          const res=await fetch(`/api/admin/wishlists`,{
         method:"POST",
         headers: {
@@ -246,6 +247,10 @@ function handleColorChange(event) {
     setSelectedSize(size); 
   }
 
+
+  if(status==="loading"){
+    return <LoadingPage/>
+  }
  
   
   return (

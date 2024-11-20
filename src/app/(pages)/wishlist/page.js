@@ -47,9 +47,10 @@ function WishlistPage() {
     }
   }, [change, jwt]);
 
+
   // Remove item from wishlist
   async function Remove(id) {
-    alert(JSON.stringify(id))
+ 
     if (jwt) {
       try {
         const res = await fetch(`/api/admin/wishlists/${id}`, {
@@ -100,7 +101,7 @@ function WishlistPage() {
                   <p className="text-gray-600 mt-2">{item.price}</p>
                   <button
                     className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600"
-                    onClick={() =>console.log(item)} // Adjust for local storage ID
+                    onClick={() =>Remove(item._id)} // Adjust for local storage ID
                   >
                     Remove from Wishlist
                   </button>
