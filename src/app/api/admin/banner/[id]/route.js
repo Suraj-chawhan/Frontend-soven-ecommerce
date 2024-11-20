@@ -1,23 +1,18 @@
 import Banner from "../../../../../../Component/Admin/Mongodb/MongodbSchema/bannerSchema";
 import connectDB from "../../../../../../Component/Admin/Mongodb/Connect";
 import jwt from 'jsonwebtoken';
-
 const verifyToken = (req) => {
-    const token = req.headers.get('Authorization')?.split(' ')[1]; // Assuming Bearer token
-  
+    const token = req.headers.get("Authorization")?.split(" ")[1]; // Extract Bearer token
     if (!token) {
-      throw new Error('Authentication token missing');
+      throw new Error("Authentication token missing");
     }
-  
     try {
-      // Verify the token using your secret key
-      const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
-      return decoded; // Return the decoded token if verification is successful
-    } catch (err) {
-      throw new Error('Invalid or expired token');
+      return jwt.verify(token, process.env.NEXTAUTH_SECRET); // Verify JWT
+    } catch {
+      throw new Error("Invalid or expired token");
     }
-};
-
+  };
+  
 export async function DELETE(req, { params }) {
   await connectDB();
 

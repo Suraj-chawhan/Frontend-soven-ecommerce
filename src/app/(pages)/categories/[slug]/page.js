@@ -30,9 +30,17 @@ const {status}=useSession()
 
         const filterData=data.filter(val=>val.categories===slug)
    
-        data?setSizes(data[0]?.sizes):""
-        data?setColors(data[0]?.colors):""
 
+        const allSizes = [
+          ...new Set(filterData.flatMap((product) => product.sizes.map((s) => s.size))),
+        ];
+        const allColors = [
+          ...new Set(filterData.flatMap((product) => product.colors.map((c) => c.color))),
+        ];
+
+
+   setColors(allColors)
+   setSizes(allSizes)
         setProducts(filterData);
         setOriginalProducts(filterData);
       } catch (err) {

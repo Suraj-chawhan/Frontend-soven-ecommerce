@@ -1,19 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import Cart from "../../Component/Cart";
 import Seasonal from "../../Component/Seasonal";
 import Banner from "../../Component/Banner";
-import Error from "../../Component/ErrorFetch/FetchError";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import NotLoggedInPage from "../../Component/NotLoggedIn";
 import LoadingPage from "../../Component/LoadingPage";
 import { useDispatch } from "react-redux";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -24,31 +26,25 @@ export default function Home() {
   const [recentProducts, setRecentProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { data: session,status } = useSession(); // Use `status` to handle session state
+  const { data: session, status } = useSession(); // Use `status` to handle session state
   const router = useRouter();
- const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
+  const containerRef = useRef(); // Reference for the main container
 
-
-  
- useEffect(() => {
-  // Check if the user is admin on initial load
-  if (session?.user?.role === "admin") {
-    // Check if we already redirected the user
-    const redirected = localStorage.getItem("adminRedirected");
-
-    if (!redirected) {
-
-      localStorage.setItem("adminRedirected", "true");
-     
-      router.push("/admin");
-    }
-  }
-}, [session, router]);
-
-
+  // Redirect admin users to the admin page
   useEffect(() => {
-  
+    if (session?.user?.role === "admin") {
+      const redirected = localStorage.getItem("adminRedirected");
+      if (!redirected) {
+        localStorage.setItem("adminRedirected", "true");
+        router.push("/admin");
+      }
+    }
+  }, [session, router]);
+
+  // Fetch data for products, categories, and banners
+  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -65,16 +61,13 @@ export default function Home() {
           imageResponse.json(),
         ]);
 
-        // Set fetched data
         setProducts(productData);
         setCategories(categoryData);
         setImages(imageData);
 
-        // Sort recently added products
         const sortedProducts = productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setRecentProducts(sortedProducts.slice(0, 5));
 
-        // Filter products by default category
         const filtered = productData.filter((product) => product.categories === selectedCategory);
         setFilteredProducts(filtered);
 
@@ -86,39 +79,111 @@ export default function Home() {
     };
 
     fetchData();
-  
   }, [selectedCategory]);
 
+  // GSAP Animations
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ".banner-section",
+        { opacity: 0, y: 0 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.5,
+          ease: "power4.out",
+          scrollTrigger: {
+            trigger: ".banner-section",
+            start: "top 80%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
 
+      gsap.fromTo(
+        ".products-section",
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.5,
+          stagger: 0.2,
+          ease: "power4.out",
+          scrollTrigger: {
+            trigger: ".products-section",
+            start: "top 80%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
 
+      gsap.fromTo(
+        ".categories-section",
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.5,
+          stagger: 0.2,
+          ease: "power4.out",
+          scrollTrigger: {
+            trigger: ".categories-section",
+            start: "top 80%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
+    }, containerRef);
 
-  if(status==="loading"){
-    return <LoadingPage/>
+    return () => ctx.revert(); // Cleanup GSAP context on unmount
+  }, [session]);
+
+  if (status === "loading") {
+    return <LoadingPage />;
   }
- 
 
   return (
-    <div className="flex flex-col gap-10 relative overflow-hidden w-full h-full">
+    <div className="flex flex-col gap-10 relative overflow-hidden w-full h-full" ref={containerRef}>
       {/* Banner Section */}
-      {loading ? <Skeleton height={500} /> : <Banner images={images} />}
+      <div className="banner-section">
+        {loading ? <Skeleton height={500} /> : <Banner images={images} />}
+      </div>
 
       {/* Newly Dropped Products */}
-      <h1 className="flex align-center justify-center font-bold text-3xl">Newly Dropped</h1>
-      <div className="flex gap-4 self-center">
+      <h1 className="flex align-center justify-center font-bold text-3xl products-section">
+        Newly Dropped
+      </h1>
+      <div className="flex gap-4 self-center products-section flex flex-col">
+        <div className="flex gap-4 ">
         {loading
           ? Array(5)
               .fill(0)
               .map((_, index) => <Skeleton key={index} width={200} height={300} />)
           : products.slice(0, 5).map((product) => (
               <Link href={`/checkout/${product.slug}`} key={product.slug}>
-                <Cart title={product.name} size={product.sizes} img={product.thumbnail} slug={product.slug} price={product.price} />
+                <Cart
+                  title={product.name}
+                  size={product.sizes}
+                  img={product.thumbnail}
+                  slug={product.slug}
+                  price={product.price}
+                />
               </Link>
             ))}
+            
+</div>
+              <div className="flex justify-center mt-4">
+          <button className="p-2 bg-black text-white rounded-md hover:bg-gray-700" onClick={()=>router.push("/moreProducts")}>
+            Show More
+          </button>
+        </div>
       </div>
 
       {/* Seasonal Favorites */}
-      <h1 className="flex align-center justify-center font-bold text-3xl">Seasonal Favorites</h1>
-      <div className="flex gap-8 self-center">
+      <h1 className="flex align-center justify-center font-bold text-3xl categories-section">
+        Seasonal Favorites
+      </h1>
+      <div className="flex gap-8 self-center categories-section">
         {loading
           ? Array(3)
               .fill(0)
@@ -131,37 +196,49 @@ export default function Home() {
       </div>
 
       {/* Category Buttons */}
-      <div className="self-center flex gap-4">
-        { categories.map((category) => (
-              <button
-                key={category.name}
-                className="p-2 border-2 border-black hover:bg-black hover:text-white font-bold rounded-2xl"
-                onClick={() => setSelectedCategory(category.name)}
-              >
-                {category.name.toUpperCase()}
-              </button>
-            ))}
+      <div className="self-center flex gap-4 categories-section">
+        {categories.map((category) => (
+          <button
+            key={category.name}
+            className="p-2 border-2 border-black hover:bg-black hover:text-white font-bold rounded-2xl"
+            onClick={() => setSelectedCategory(category.name)}
+          >
+            {category.name.toUpperCase()}
+          </button>
+        ))}
       </div>
 
       {/* Filtered Products Section */}
-      <div className="self-center flex gap-2">
-        { filteredProducts.map((product) => (
-              <Link href={`/checkout/${product.slug}`} key={product._id}>
-                <Cart title={product.title} size={product.sizes} img={product.thumbnail} slug={product.slug} price={product.price} />
-              </Link>
-            ))}
+      <div className="self-center flex gap-2 products-section">
+        {filteredProducts.map((product) => (
+          <Link href={`/checkout/${product.slug}`} key={product._id}>
+            <Cart
+              title={product.title}
+              size={product.sizes}
+              img={product.thumbnail}
+              slug={product.slug}
+              price={product.price}
+            />
+          </Link>
+        ))}
       </div>
 
       {/* Recently Added Products */}
-      <h1 className="font-bold self-center text-4xl">Recently Added</h1>
-      <div className="self-center flex gap-4">
+      <h1 className="font-bold self-center text-4xl products-section">Recently Added</h1>
+      <div className="self-center flex gap-4 products-section">
         {loading
           ? Array(4)
               .fill(0)
               .map((_, index) => <Skeleton key={index} width={200} height={300} />)
           : recentProducts.map((product) => (
               <Link href={`/checkout/${product.slug}`} key={product._id}>
-                <Cart img={product.thumbnail} size={product.sizes} title={product.title} slug={product.slug} price={product.price} />
+                <Cart
+                  img={product.thumbnail}
+                  size={product.sizes}
+                  title={product.title}
+                  slug={product.slug}
+                  price={product.price}
+                />
               </Link>
             ))}
       </div>

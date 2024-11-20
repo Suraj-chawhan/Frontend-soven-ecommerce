@@ -2,7 +2,13 @@ import React from 'react'
 import { FaInstagram,FaLinkedin,FaYoutube,FaPinterest,FaTwitter,FaFacebook } from 'react-icons/fa'
 import Link from 'next/link'
 function Footer() {
+
+
+
+
+    
   return (
+
     <div className='flex flex-col gap-4 border-t-2 border-black p-2 mt-8'>
     <div  className='flex justify-between items-start' >
         <div className='flex:1 flex-col gap-4'>
@@ -38,8 +44,6 @@ function Footer() {
     <h1>Sign up and save</h1>
     <p>Sign up now and be the first to know about exclusive offers, latest fashion trends & style tips!</p>
     <div className='flex  items-center gap-2'>
-    <input type="text"  placeholder='Enter email' className='pr-8  border-b-2 border-black w-[20%] p-2'/>
-    <p>Subscribe</p>
     </div>
     <div className='flex gap-4'>
         <FaInstagram size="2em" />

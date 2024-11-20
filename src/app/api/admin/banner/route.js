@@ -1,7 +1,7 @@
 
 import connectDB from "../../../../../Component/Admin/Mongodb/Connect";
 import Banner from "../../../../../Component/Admin/Mongodb/MongodbSchema/bannerSchema";
-
+import jwt from "jsonwebtoken"
 
 const verifyToken = (req) => {
   const token = req.headers.get('Authorization')?.split(' ')[1]; // Assuming Bearer token
