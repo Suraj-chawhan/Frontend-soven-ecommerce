@@ -32,10 +32,10 @@ const {status}=useSession()
    
 
         const allSizes = [
-          ...new Set(filterData.flatMap((product) => product.sizes.map((s) => s.size))),
+          ...new Set(data.flatMap((product) => product.sizes.map((s) => s.size))),
         ];
         const allColors = [
-          ...new Set(filterData.flatMap((product) => product.colors.map((c) => c.color))),
+          ...new Set(data.flatMap((product) => product.colors.map((c) => c.color))),
         ];
 
 
@@ -122,6 +122,13 @@ const {status}=useSession()
 
   return (
     <div className="container mx-auto px-4 py-8">
+       <button
+        onClick={() => router.back()}
+        className="mb-4 text-blue-500 underline hover:text-blue-700"
+      >
+        Go Back
+      </button>
+
       <div className="grid grid-cols-4 gap-8">
         {/* Filters Section */}
         <div className="col-span-1 bg-white p-4 rounded-lg shadow-md">
