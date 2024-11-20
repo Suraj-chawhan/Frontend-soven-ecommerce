@@ -24,10 +24,11 @@ export default function AdminPanel() {
   };
 
   useEffect(() => {
+  
     if (status === "loading") return; // Avoid unnecessary redirects while loading
 
     if (session?.user?.role !== "admin") {
-      router.push("/"); // Redirect to homepage if not logged in or not admin
+      router.push("/"); 
     }
   }, [session, router, status]);
 

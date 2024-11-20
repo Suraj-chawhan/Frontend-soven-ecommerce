@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FaUser, FaShoppingBag, FaHeart, FaSearch, FaBars } from "react-icons/fa";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter,usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { setTrue } from "../redux/cartToggle.js";
 import Image from "next/image";
@@ -16,7 +16,7 @@ const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [auth, setAuth] = useState(false);
   const [product, setProduct] = useState([]);
-  
+  const pathname=usePathname()
   const [change,setChange]=useState(true)
   const [totalPrice, setTotalPrice] = useState(0);
  const[jwt,setJwt]=useState(null)
@@ -350,6 +350,17 @@ async function Remove(id) {
             <Image src="/logo.jpg"  width={100} height={100} className="w-[100px] h-[5x]" alt="logo" />
           </Link>
           <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center">
+          {session?.user?.role === "admin" && pathname !== "/admin" && (
+    <button 
+      onClick={() => router.push("/admin")} 
+      className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
+    >
+      Go to Admin
+    </button>
+  )}
+</div>
+
             <Link href="/search">
               <FaSearch className="text-lg" />
             </Link>

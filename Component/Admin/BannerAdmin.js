@@ -3,12 +3,23 @@
 import React, { useState, useEffect } from 'react';
 import { CldUploadWidget } from 'next-cloudinary'; // Assuming you're using Next.js Cloudinary SDK
 import Image from 'next/image';
+
+import { useSession } from 'next-auth/react';
 function BannerAdmin() {
   const [banner, setBanner] = useState(null);
   const [banners, setBanners] = useState([]);
- 
+  const[flag,setFlag]=useState(false)
+  const{data:session}=useSession()
+  const[jwt,setJwt]=useState("")
   // Fetch banners on component mount
 
+
+
+  useEffect(()=>{
+   if(session){
+    setJwt(session?.user?.accessToken)
+   } 
+  },[session])
   useEffect(() => {
     async function fetchBanners() {
       try {
@@ -21,7 +32,7 @@ function BannerAdmin() {
     }
 
     fetchBanners();
-  }, []);
+  }, [flag]);
 
   // Handle upload success
   const handleUpload = (result) => {
@@ -42,17 +53,19 @@ function BannerAdmin() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          "Authorization":`Bearer ${jwt}`
         },
         body: JSON.stringify({ img }),
       });
-
-      if (response.ok) {
+    if(!response.ok){
+      alert("Error in upload")
+      return
+    }
+    
         const newBanner = await response.json();
         setBanners((prevBanners) => [...prevBanners, newBanner]); // Add new banner to list
         alert('Banner uploaded successfully!');
-      } else {
-        alert('Error uploading banner');
-      }
+    
     } catch (error) {
       console.error('Error posting banner:', error);
       alert('Error uploading banner');
