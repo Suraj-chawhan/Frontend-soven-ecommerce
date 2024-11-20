@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import Cart from '../../../../../Component/Cart'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import LoadingPage from '../../../../../Component/LoadingPage'
 function Page() {
   const { slug } = useParams();
   const [sizes, setSizes] = useState([]);
