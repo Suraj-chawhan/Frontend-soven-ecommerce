@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { FaUser, FaShoppingBag, FaHeart, FaSearch, FaBars } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter,usePathname } from "next/navigation";
@@ -10,8 +10,8 @@ import Image from "next/image";
 import CartDrawer from "./CartDrawer.js";
 import BottomNavigationMobile from "./BottomNavigationMobile.js";
 import SlideingNavigation from "./SlideingNavigation.js";
-import { useSession } from "next-auth/react";
-  
+import { signOut, useSession } from "next-auth/react";
+  import gsap from "gsap";
 const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [auth, setAuth] = useState(false);
@@ -24,7 +24,7 @@ const Navbar = () => {
   const isToggled = useSelector((state) => state.toggle.isToggled);
  const{data:session}=useSession()
   const router = useRouter();
-
+  const navRef=useRef()
   const dispatch = useDispatch();
 
 
@@ -169,6 +169,16 @@ const syncDataToStrapiWishList = async (jwt) => {
     } else {
       handleLocalStorageBags();
     }
+
+
+    gsap.fromTo(navRef.current.children, { y: -20, opacity: 0 }, // Starting state
+      { 
+        y: 0, 
+        opacity: 1, 
+        stagger: 0.3, 
+        ease: "power2.out", 
+        delay: 0.5 // Animation delay
+      })
   }, []);
 
 
@@ -308,7 +318,7 @@ const syncDataToStrapiWishList = async (jwt) => {
 
 
 async function Remove(id) {
-  alert(id)
+ 
   if (jwt) {
     alert("jwt present")
     try {
@@ -340,17 +350,74 @@ async function Remove(id) {
 }
 
   return (
-    <div className="relative flex flex-col z-50">
-      <div className="flex flex-col bg-white border-1 border-gray-100 hover:border-b-2 hover:border-black p-4 text-black">
-        <div className="flex items-center justify-between">
+    <div className="relative flex flex-col z-50" >
+      <div className="flex flex-col bg-white border-gray-100 hover:border-b-2 hover:border-black p-4 text-black" >
+        <div className="flex  w-full  h-full text-2xl" >
+          <div className="md:hidden  w-full flex items-center justify-between">
+            <div className="flex  w-full justify-between">
           <button onClick={() => setIsNavOpen(!isNavOpen)}>
             <FaBars className="text-xl" />
           </button>
-          <Link href="/">
-            <Image src="/logo.jpg"  width={100} height={100} className="w-[100px] h-[5x]" alt="logo" />
-          </Link>
-          <div className="flex gap-4 items-center">
-          <div className="flex gap-4 items-center">
+     
+          <Link href="/search" className="">
+       <FaSearch/>
+       </Link>
+       </div>
+       </div>
+          <div className="w-full hidden md:flex flex-col p-4" ref={navRef}>
+    <div className="flex  w-full items-center justify-between ">
+      <Link href="/">
+        <Image
+          src="/logo.jpg"
+          width={100}
+          height={100}
+          className="w-[100px] h-auto"
+          alt="logo"
+        />
+      </Link>
+
+      <div className="flex gap-6 items-center">
+        <Link href="/" className="hover:text-purple-600">
+          Home
+        </Link>
+        <Link href="/about" className="hover:text-purple-600">
+          About
+        </Link>
+        <Link href="/moreProducts" className="hover:text-purple-600">
+          Shop
+        </Link>
+        <h1 onClick={() => dispatch(setTrue())} className="hover:text-purple-600">
+          Bag
+        </h1>
+        <Link href="/wishlist" className="hover:text-purple-600">
+          Wishlists
+        </Link>
+        <Link href="/contact" className="hover:text-purple-600">
+          Contact Us
+        </Link>
+        <Link href="/search" >
+       <FaSearch/>
+       </Link>
+        {session?.user ? (
+          <button
+            onClick={() => {
+               signOut()
+            }}
+            className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            onClick={() => router.push("/login")}
+            className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
+          >
+            Login
+          </button>
+        )}
+
+        <div className="flex gap-4 items-center">
+       
           {session?.user?.role === "admin" && pathname !== "/admin" && (
     <button 
       onClick={() => router.push("/admin")} 
@@ -359,24 +426,13 @@ async function Remove(id) {
       Go to Admin
     </button>
   )}
-</div>
-
-            <Link href="/search">
-              <FaSearch className="text-lg" />
-            </Link>
-            <div className="hidden md:flex gap-4 items-center">
-              <button onClick={() => router.push("/login")}>
-                <FaUser className="text-lg" />
-              </button>
-              <button onClick={() => dispatch(setTrue())}>
-                <FaShoppingBag className="text-lg" />
-              </button>
-              <button onClick={() => router.push("/wishlist")}>
-                <FaHeart className="text-lg" />
-              </button>
-            </div>
-          </div>
         </div>
+      </div>
+    </div>
+  </div>
+       
+</div>
+  
       </div>
 
       <SlideingNavigation auth={auth} setAuth={setAuth} isNavOpen={isNavOpen} setIsNavOpen={setIsNavOpen} product={product}/>

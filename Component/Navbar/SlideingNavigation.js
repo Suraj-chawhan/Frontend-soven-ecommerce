@@ -32,7 +32,7 @@ function SlideingNavigation({isNavOpen,auth,setAuth,setIsNavOpen,product}) {
     
   return (
     <div
-    className={`fixed top-0 left-0 w-64 h-full bg-gray-700 text-white p-4 flex flex-col justify-between transition-transform transform ${
+    className={` md:hidden fixed top-0 left-0 w-64 h-full bg-gray-700 text-white p-4 flex flex-col justify-between transition-transform transform ${
       isNavOpen ? 'translate-x-0' : '-translate-x-full'
     } md:w-72 lg:w-80 z-50`}
     ref={navRef}

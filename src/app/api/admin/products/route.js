@@ -23,7 +23,7 @@ export async function POST(req) {
     await connectDB();
     try {
       const products = await productSchema.find(); // Fetch all products
-      return new Response(JSON.stringify(products), { status: 200 });
+      return new Response(JSON.stringify(products));
     } catch (err) {
       console.error('Error:', err.message);
       return new Response(JSON.stringify({ error: err.message }), { status: 400 });

@@ -6,7 +6,9 @@ import Cart from '../../../../../Component/Cart'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import LoadingPage from '../../../../../Component/LoadingPage'
+import { useRouter } from 'next/navigation'
 function Page() {
+  const router=useRouter()
   const { slug } = useParams();
   const [sizes, setSizes] = useState([]);
   const [colors, setColors] = useState([]);
