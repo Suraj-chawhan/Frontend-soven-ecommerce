@@ -1,23 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { FaSearch } from 'react-icons/fa';
-import Cart from '../../../../Component/Cart';
-import Link from 'next/link';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from "react";
+import { FaSearch } from "react-icons/fa";
+import Cart from "../../../../Component/Cart";
+import Link from "next/link";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import { useRouter } from "next/navigation";
 function Page() {
-  const router=useRouter()
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
-  // Fetch all products and categories
   useEffect(() => {
     const fetchProductsAndCategories = async () => {
       setLoadingProducts(true);
@@ -35,7 +34,7 @@ function Page() {
         setLoadingProducts(false);
         setLoadingCategories(false);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         setLoadingProducts(false);
         setLoadingCategories(false);
       }
@@ -44,22 +43,17 @@ function Page() {
     fetchProductsAndCategories();
   }, []);
 
-  // Filter products based on selected category and search term
   useEffect(() => {
     const filterProducts = () => {
       let filtered = [...allProducts];
-
-      // Filter by search term if it exists
       if (searchTerm) {
         filtered = filtered.filter((product) =>
           product.title.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
-
-      // Filter by selected category if it exists
       if (selectedCategory) {
-        filtered = filtered.filter((product) =>
-          product.categories === selectedCategory
+        filtered = filtered.filter(
+          (product) => product.categories === selectedCategory
         );
       }
 
@@ -68,31 +62,27 @@ function Page() {
 
     filterProducts();
   }, [searchTerm, selectedCategory, allProducts]);
-
-  // Handle search term change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  // Handle category selection
   const handleCategoryClick = (category) => {
     setSelectedCategory(category);
   };
 
-  // Handle clearing the selected category
   const handleClearCategory = () => {
-    setSelectedCategory('');
+    setSelectedCategory("");
   };
 
   return (
     <div className="flex h-full flex-col gap-8 p-8 bg-gray-50">
-         <button
-  onClick={() => router.back()}
-  className="self-start mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
->
-  ← Go Back
-</button>
-      {/* Search Bar */}
+      <button
+        onClick={() => router.back()}
+        className="self-start mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+      >
+        ← Go Back
+      </button>
+
       <div className="w-full max-w-lg mx-auto flex items-center bg-white rounded-full shadow-lg p-4">
         <FaSearch className="mr-4 text-gray-400" />
         <input
@@ -104,7 +94,6 @@ function Page() {
         />
       </div>
 
-      {/* Category Filter Button */}
       {selectedCategory && (
         <button
           onClick={handleClearCategory}
@@ -117,7 +106,9 @@ function Page() {
       <div className="flex flex-wrap lg:flex-nowrap gap-8">
         {/* Categories Sidebar */}
         <div className="w-full lg:w-1/4 bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-800">Categories</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+            Categories
+          </h2>
           <ul className="space-y-2">
             {loadingCategories ? (
               <Skeleton height={30} />
@@ -128,8 +119,8 @@ function Page() {
                   onClick={() => handleCategoryClick(category.name)}
                   className={`p-3 text-center cursor-pointer rounded-lg font-medium transition-all ${
                     selectedCategory === category.name
-                      ? 'bg-red-500 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-600 hover:bg-red-100'
+                      ? "bg-red-500 text-white shadow-md"
+                      : "bg-gray-100 text-gray-600 hover:bg-red-100"
                   }`}
                 >
                   {category.name}
@@ -141,7 +132,9 @@ function Page() {
 
         {/* Products Display */}
         <div className="w-full lg:w-3/4 bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-6 text-gray-800">Products</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+            Products
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {loadingProducts ? (
               <>

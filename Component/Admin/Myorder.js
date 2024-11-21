@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 function MyOrder() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const{data:session}=useSession()
+  const [searchQuery, setSearchQuery] = useState("");
+  const { data: session } = useSession();
   useEffect(() => {
     const fetchOrders = async () => {
-     const jwt=session?.user.accessToken
-   
+      const jwt = session?.user.accessToken;
+
       try {
-        const response = await fetch('/api/admin/my-orders',{
-          headers:{
-            "Authorization":`Bearer ${jwt}`
-          }
+        const response = await fetch("/api/admin/my-orders", {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         });
         if (!response.ok) {
-          throw new Error('Failed to fetch orders');
+          throw new Error("Failed to fetch orders");
         }
         const data = await response.json();
         setOrders(data);
@@ -37,7 +37,6 @@ function MyOrder() {
     const query = e.target.value;
     setSearchQuery(query);
 
-    // Filter orders based on the query
     const filtered = orders.filter((order) => {
       return (
         order.title.toLowerCase().includes(query.toLowerCase()) ||
@@ -50,7 +49,7 @@ function MyOrder() {
   };
 
   if (loading) {
-    return <div className='align-center'>Loading...</div>;
+    return <div className="align-center">Loading...</div>;
   }
 
   if (error) {
@@ -85,7 +84,6 @@ function MyOrder() {
               <th className="px-4 py-2 text-left">Payment Method</th>
               <th className="px-4 py-2 text-left">Estimated Date</th>
               <th className="px-4 py-2 text-left">Address</th>
-            
             </tr>
           </thead>
           <tbody>
@@ -99,9 +97,10 @@ function MyOrder() {
                   <td className="px-4 py-2">{order.price}</td>
                   <td className="px-4 py-2">{order.quantity}</td>
                   <td className="px-4 py-2">{order.payment_method}</td>
-                  <td className="px-4 py-2">{new Date(order.estimated_date).toLocaleDateString()}</td>
+                  <td className="px-4 py-2">
+                    {new Date(order.estimated_date).toLocaleDateString()}
+                  </td>
                   <td className="px-4 py-2">{order.address}</td>
-                 
                 </tr>
               ))
             ) : (

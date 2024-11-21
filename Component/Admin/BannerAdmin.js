@@ -1,31 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { CldUploadWidget } from 'next-cloudinary'; // Cloudinary Upload Widget
-import Image from 'next/image';
-import { useSession } from 'next-auth/react';
+import React, { useState, useEffect } from "react";
+import { CldUploadWidget } from "next-cloudinary";
+import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 function BannerAdmin() {
-  const [bannerPreview, setBannerPreview] = useState(null); // For previewing the uploaded image
-  const [banners, setBanners] = useState([]); // List of banners
-  const [flag, setFlag] = useState(false); // To trigger banner re-fetch
+  const [bannerPreview, setBannerPreview] = useState(null);
+  const [banners, setBanners] = useState([]);
+  const [flag, setFlag] = useState(false);
   const { data: session } = useSession();
   const [jwt, setJwt] = useState("");
 
-  // Set JWT on session load
   useEffect(() => {
     if (session) {
       setJwt(session?.user?.accessToken);
     }
   }, [session]);
 
-  // Fetch banners on mount or when `flag` changes
   useEffect(() => {
     async function fetchBanners() {
       try {
-        const response = await fetch('/api/admin/banner');
+        const response = await fetch("/api/admin/banner");
         const data = await response.json();
-        setBanners(data); // assuming the response is an array of banner objects
+        setBanners(data);
       } catch (error) {
-        console.error('Error fetching banners:', error);
+        console.error("Error fetching banners:", error);
       }
     }
     fetchBanners();
@@ -34,11 +32,11 @@ function BannerAdmin() {
   // POST banner to backend
   const postBannerToAPI = async (img) => {
     try {
-      const response = await fetch('/api/admin/banner', {
-        method: 'POST',
+      const response = await fetch("/api/admin/banner", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${jwt}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
         },
         body: JSON.stringify({ img }),
       });
@@ -49,20 +47,19 @@ function BannerAdmin() {
       }
 
       const newBanner = await response.json();
-      setBanners((prevBanners) => [...prevBanners, newBanner]); // Add new banner to list
-      alert('Banner uploaded successfully!');
-      setBannerPreview(null); // Reset the preview
+      setBanners((prevBanners) => [...prevBanners, newBanner]);
+      alert("Banner uploaded successfully!");
+      setBannerPreview(null);
       setFlag((v) => !v);
     } catch (error) {
-      console.error('Error posting banner:', error);
-      alert('Error uploading banner');
+      console.error("Error posting banner:", error);
+      alert("Error uploading banner");
     }
   };
 
-  // Handle successful upload from Cloudinary
   const handleUpload = (result) => {
     const uploadedImageUrl = result.info.secure_url;
-    setBannerPreview(uploadedImageUrl); // Set the preview for the uploaded image
+    setBannerPreview(uploadedImageUrl);
   };
 
   // Remove banner
@@ -70,16 +67,18 @@ function BannerAdmin() {
     try {
       const res = await fetch(`/api/admin/banner/${id}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${jwt}` },
+        headers: { Authorization: `Bearer ${jwt}` },
       });
 
       const data = await res.json();
       if (res.ok) {
-        setBanners((prevBanners) => prevBanners.filter((banner) => banner._id !== data._id));
-        alert('Banner removed successfully!');
+        setBanners((prevBanners) =>
+          prevBanners.filter((banner) => banner._id !== data._id)
+        );
+        alert("Banner removed successfully!");
       }
     } catch (err) {
-      console.error('Error removing banner:', err);
+      console.error("Error removing banner:", err);
     }
   };
 
@@ -118,10 +117,7 @@ function BannerAdmin() {
         <h2 className="text-xl font-bold mb-4">Upload Banner</h2>
 
         {/* Cloudinary Upload Widget */}
-        <CldUploadWidget
-          uploadPreset="fgl3bmtq"
-          onSuccess={handleUpload}
-        >
+        <CldUploadWidget uploadPreset="fgl3bmtq" onSuccess={handleUpload}>
           {({ open }) => (
             <button
               type="button"

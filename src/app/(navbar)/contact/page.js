@@ -1,39 +1,30 @@
+"use client";
 
-"use client"
-
-import React,{useState} from 'react';
+import React, { useState } from "react";
 
 function ContactUs() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
+  async function Submit() {
+    try {
+      const res = await fetch("/api/admin/contactus", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
 
-  const[name,setName]=useState("")
-  const[email,setEmail]=useState("")
-  const[message,setMessage]=useState("")
-
-    async function Submit(){
-     
-   try{
-   const res=await fetch("/api/admin/contactus",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({name,email,message})
-   })
-
-    if(res.ok){
-        alert("Message send successfully")
+      if (res.ok) {
+        alert("Message send successfully");
         setName("");
         setEmail("");
         setMessage("");
+      }
+    } catch (err) {
+      console.log(err);
     }
-   }
-
-   catch(err){
-   console.log(err)
-   }
-
-    }
-
-
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 text-gray-800">
@@ -60,8 +51,10 @@ function ContactUs() {
         <div>
           <h3 className="text-xl font-semibold mb-2">Corporate Office</h3>
           <p className="mb-2">
-            123 Fashion Street<br />
-            New York, NY 10001<br />
+            123 Fashion Street
+            <br />
+            New York, NY 10001
+            <br />
             United States
           </p>
         </div>
@@ -69,42 +62,51 @@ function ContactUs() {
 
       <form className="mt-12 space-y-6 max-w-lg mx-auto">
         <div>
-          <label className="block text-lg mb-1" htmlFor="name">Name</label>
+          <label className="block text-lg mb-1" htmlFor="name">
+            Name
+          </label>
           <input
             id="name"
             type="text"
             className="w-full border border-gray-300 p-2 rounded-lg"
             placeholder="Your Name"
             value={name}
-            onChange={(e)=>setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
           />
         </div>
 
         <div>
-          <label className="block text-lg mb-1" htmlFor="email">Email</label>
+          <label className="block text-lg mb-1" htmlFor="email">
+            Email
+          </label>
           <input
             id="email"
             type="email"
             className="w-full border border-gray-300 p-2 rounded-lg"
             placeholder="Your Email"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
         <div>
-          <label className="block text-lg mb-1" htmlFor="message">Message</label>
+          <label className="block text-lg mb-1" htmlFor="message">
+            Message
+          </label>
           <textarea
             id="message"
             className="w-full border border-gray-300 p-2 rounded-lg"
             placeholder="Your Message"
             rows="5"
             value={message}
-            onChange={(e)=>setMessage(e.target.value)}
+            onChange={(e) => setMessage(e.target.value)}
           />
         </div>
 
-        <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700" onClick={Submit}>
+        <button
+          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          onClick={Submit}
+        >
           Send Message
         </button>
       </form>

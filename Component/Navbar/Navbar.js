@@ -1,9 +1,15 @@
 "use client";
 
-import React, { useState, useEffect,useRef } from "react";
-import { FaUser, FaShoppingBag, FaHeart, FaSearch, FaBars } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  FaUser,
+  FaShoppingBag,
+  FaHeart,
+  FaSearch,
+  FaBars,
+} from "react-icons/fa";
 import Link from "next/link";
-import { useRouter,usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { setTrue } from "../redux/cartToggle.js";
 import Image from "next/image";
@@ -11,277 +17,259 @@ import CartDrawer from "./CartDrawer.js";
 import BottomNavigationMobile from "./BottomNavigationMobile.js";
 import SlideingNavigation from "./SlideingNavigation.js";
 import { signOut, useSession } from "next-auth/react";
-  import gsap from "gsap";
+import gsap from "gsap";
 const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [auth, setAuth] = useState(false);
   const [product, setProduct] = useState([]);
-  const pathname=usePathname()
-  const [change,setChange]=useState(true)
+  const pathname = usePathname();
+  const [change, setChange] = useState(true);
   const [totalPrice, setTotalPrice] = useState(0);
- const[jwt,setJwt]=useState(null)
- const[userId,setUserId]=useState('')
+  const [jwt, setJwt] = useState(null);
+  const [userId, setUserId] = useState("");
   const isToggled = useSelector((state) => state.toggle.isToggled);
- const{data:session}=useSession()
+  const { data: session } = useSession();
   const router = useRouter();
-  const navRef=useRef()
+  const navRef = useRef();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const jwt = session?.user.accessToken;
+    const id = session?.user.userId;
+    console.log("Session" + session);
+    setJwt(jwt);
+    setUserId(id);
 
-useEffect(() => {
-  const jwt = session?.user.accessToken
-  const id = session?.user.userId
-   console.log("Session"+session)
- setJwt(jwt);
-  setUserId(id);
+    if (jwt) setAuth(true);
+  }, [session]);
 
-  if (jwt) setAuth(true);  
-}, [session]);
+  // Trigger syncDataToStrapi after both jwt and userId are set
+  useEffect(() => {
+    if (jwt && userId) {
+      console.log("Sync is called");
+      syncDataToStrapi(jwt, userId);
+      syncDataToStrapiWishList(jwt);
+    }
+  }, [jwt, userId]);
 
-// Trigger syncDataToStrapi after both jwt and userId are set
-useEffect(() => {
-  if (jwt && userId) {
-    console.log("Sync is called");
-    syncDataToStrapi(jwt, userId);
-    syncDataToStrapiWishList(jwt);
-  }
-}, [jwt, userId]); // Only run this effect when jwt and userId are available
+  const syncDataToStrapi = async (jwt) => {
+    const data = localStorage.getItem("bags");
+    if (data) {
+      try {
+        const parsedData = JSON.parse(data);
+        console.log("parsed data" + parsedData);
+        console.log(data);
+        const existingRes = await fetch(`/api/admin/bag`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+        });
+        const existingData = await existingRes.json();
+        console.log("Existing data: ", existingData);
 
-const syncDataToStrapi = async (jwt) => {
-  const data = localStorage.getItem("bags");
-  if (data) {
-    try {
-      const parsedData = JSON.parse(data);
-      console.log("parsed data"+parsedData)
-       console.log(data)
-      const existingRes = await fetch(`/api/admin/bag`,{
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${jwt}`,  // Add this line
-        },
-      });
-      const existingData = await existingRes.json();
-      console.log("Existing data: ", existingData);
+        const newData = parsedData.filter(
+          (newItem) =>
+            !existingData.some(
+              (existingItem) =>
+                existingItem.img === newItem.img &&
+                existingItem.title === newItem.title &&
+                existingItem.color === newItem.color &&
+                existingItem.size === newItem.size &&
+                existingItem.price === newItem.price &&
+                existingItem.quantity === newItem.quantity &&
+                existingItem.userId === newItem.userId
+            )
+        );
 
-      const newData = parsedData.filter(newItem => 
-        !existingData.some(existingItem => 
-          existingItem.img === newItem.img &&
-          existingItem.title === newItem.title &&
-          existingItem.color === newItem.color &&
-          existingItem.size === newItem.size &&
-          existingItem.price === newItem.price &&
-          existingItem.quantity === newItem.quantity &&
-          existingItem.userId === newItem.userId
-        )
-      );
+        console.log("New data to sync: ", JSON.stringify(newData));
 
-      console.log("New data to sync: ", JSON.stringify(newData));
-
-      const updatedNewData = newData.map(item => ({ ...item, userId }));
-       console.log("updated"+updatedNewData)
+        const updatedNewData = newData.map((item) => ({ ...item, userId }));
+        console.log("updated" + updatedNewData);
         const res = await fetch(`/api/admin/bag`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${jwt}`,  // Add this line
+            Authorization: `Bearer ${jwt}`,
           },
           body: JSON.stringify(updatedNewData),
-        })
-
+        });
 
         if (!res.ok) throw new Error("Failed to sync new data to Strapi");
 
         const responseData = await res.json();
         console.log("New data synced successfully:", responseData);
         localStorage.removeItem("bags");
-    
-      
-    } catch (error) {
-      console.error("Error syncing data to Strapi:", error);
+      } catch (error) {
+        console.error("Error syncing data to Strapi:", error);
+      }
     }
-  }
-};
+  };
 
+  //Sync wishllist
+  const syncDataToStrapiWishList = async (jwt) => {
+    const data = localStorage.getItem("wishlist");
 
+    if (data) {
+      try {
+        const parsedData = JSON.parse(data);
 
-//Sync wishllist
-const syncDataToStrapiWishList = async (jwt) => {
-  const data = localStorage.getItem("wishlist");
+        const existingRes = await fetch(`/api/admin/wishlists`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+        });
+        const existingData = await existingRes.json();
+        const newExistingData = existingData.filter((v) => v.userId === userId);
 
+        const newData = parsedData.filter(
+          (newItem) =>
+            !newExistingData.some(
+              (existingItem) =>
+                existingItem.img === newItem.img &&
+                existingItem.title === newItem.title &&
+                existingItem.color === newItem.color &&
+                existingItem.size === newItem.size &&
+                existingItem.price === newItem.price &&
+                existingItem.quantity === newItem.quantity
+            )
+        );
+        console.log(JSON.stringify(newData));
+        const updatedNewData = newData.map((item) => ({ ...item, userId }));
 
-  if (data) {
-    try {
-      const parsedData = JSON.parse(data);
-    
-      const existingRes = await fetch(`/api/admin/wishlists`,{   
-         headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${jwt}`,  // Add this line
-      },});
-      const existingData = await existingRes.json();
-      const newExistingData=existingData.filter(v=>v.userId===userId)
-
-      const newData = parsedData.filter(newItem => 
-        !newExistingData.some(existingItem => 
-          existingItem.img === newItem.img &&
-          existingItem.title === newItem.title &&
-          existingItem.color === newItem.color &&
-          existingItem.size === newItem.size &&
-          existingItem.price===newItem.price&&
-          existingItem.quantity===newItem.quantity
-        )
-      );
-      console.log( JSON.stringify(newData));
-      const updatedNewData = newData.map(item => ({ ...item, userId }));
-     
         const res = await fetch(`/api/admin/wishlists`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${jwt}`,
+            Authorization: `Bearer ${jwt}`,
           },
           body: JSON.stringify(updatedNewData),
         });
 
         if (!res.ok) throw new Error("Failed to sync new data to Strapi");
-        
+
         const responseData = await res.json();
         console.log("New data synced successfully:", responseData);
-        localStorage.removeItem("wishlist")
-      
-    } catch (error) {
-      console.error("Error syncing data to Strapi:", error);
+        localStorage.removeItem("wishlist");
+      } catch (error) {
+        console.error("Error syncing data to Strapi:", error);
+      }
     }
-  }
-};
-
-
-
-
-
-
+  };
 
   useEffect(() => {
-   
     if (jwt) {
       fetchBagsFromAPI(jwt);
-      
     } else {
       handleLocalStorageBags();
     }
 
-
-    gsap.fromTo(navRef.current.children, { y: -20, opacity: 0 }, // Starting state
-      { 
-        y: 0, 
-        opacity: 1, 
-        stagger: 0.3, 
-        ease: "power2.out", 
-        delay: 0.5 // Animation delay
-      })
+    gsap.fromTo(
+      navRef.current.children,
+      { y: -20, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        stagger: 0.3,
+        ease: "power2.out",
+        delay: 0.5,
+      }
+    );
   }, []);
-
 
   const fetchBagsFromAPI = async (jwt) => {
     try {
-      const res = await fetch(`/api/admin/bag`,{
+      const res = await fetch(`/api/admin/bag`, {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${jwt}`,  // Add this line
+          Authorization: `Bearer ${jwt}`,
         },
-      })
+      });
       if (!res.ok) throw new Error("Failed to fetch bag data from API");
-   
+
       const data = await res.json();
-      console.log("Before filter bag"+JSON.stringify(data))
-      const filterData=data.filter(v=>v.userId===userId)
-      console.log("After filter bag"+filterData)
+      console.log("Before filter bag" + JSON.stringify(data));
+      const filterData = data.filter((v) => v.userId === userId);
+      console.log("After filter bag" + filterData);
       setProduct(filterData);
-      console.log("Bag"+filterData)
+      console.log("Bag" + filterData);
       console.log("Fetched bag data:", data);
     } catch (error) {
       console.error("Error fetching bag data:", error);
     }
   };
 
-
-
   useEffect(() => {
-   
-    const total = product?.reduce((acc, val) => acc + val.price * val.quantity, 0);
+    const total = product?.reduce(
+      (acc, val) => acc + val.price * val.quantity,
+      0
+    );
     setTotalPrice(total);
-}, [product]);
-
-
+  }, [product]);
 
   const handleLocalStorageBags = () => {
     const data = JSON.parse(localStorage.getItem("bags"));
     if (data) {
       try {
-        console.log(data)
+        console.log(data);
         setProduct(data);
       } catch (error) {
-
         console.error("Error parsing 'bag' data from localStorage:", error);
       }
     }
   };
 
-
-
   useEffect(() => {
-    if(jwt){
-   fetchBagsFromAPI(jwt)
+    if (jwt) {
+      fetchBagsFromAPI(jwt);
+    } else {
+      const data = localStorage.getItem("bags");
+      if (data) {
+        handleLocalStorageBags();
+      }
     }
-    else{
-    const data = localStorage.getItem("bags");
-    if (data) {
-      handleLocalStorageBags(); 
-    }
-  }
-  }, [isToggled,change]);
-
-
+  }, [isToggled, change]);
 
   const updateQuantity = async (index, isIncrement) => {
     const updatedProducts = [...product];
-    
+
     if (isIncrement) {
       updatedProducts[index].quantity += 1;
     } else if (updatedProducts[index].quantity > 1) {
       updatedProducts[index].quantity -= 1;
     } else if (updatedProducts[index].quantity === 1 && !isIncrement) {
-      // Quantity is 0, remove from the bag
       if (jwt) {
-        // Delete from API
         try {
-          const res = await fetch(`/api/admin/bags/${updatedProducts[index]._id}`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${jwt}`,
-            },
-          });
+          const res = await fetch(
+            `/api/admin/bags/${updatedProducts[index]._id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${jwt}`,
+              },
+            }
+          );
           if (!res.ok) throw new Error("Failed to delete item from API");
           console.log("Item deleted from API");
         } catch (error) {
           console.error("Error deleting item from API:", error);
         }
       } else {
-        // Remove from local storage
         updatedProducts.splice(index, 1);
         localStorage.setItem("bags", JSON.stringify(updatedProducts));
         console.log("Item removed from local storage");
       }
-      // Update state after deletion
+
       setProduct(updatedProducts);
       return;
     }
-  
+
     setProduct(updatedProducts);
     console.log("Updated products:", updatedProducts);
-  
-    const formattedData = updatedProducts.map(item => ({
+
+    const formattedData = updatedProducts.map((item) => ({
       img: item.img,
       title: item.title,
       color: item.color,
@@ -290,156 +278,172 @@ const syncDataToStrapiWishList = async (jwt) => {
       price: item.price,
       userId: item.userId,
     }));
-  
+
     if (jwt) {
-      // Update quantity in API if jwt is available
       try {
-        const res = await fetch(`/api/admin/bag/${updatedProducts[index]._id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${jwt}`,
-          },
-          body: JSON.stringify({ quantity: updatedProducts[index].quantity }),
-        });
+        const res = await fetch(
+          `/api/admin/bag/${updatedProducts[index]._id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({ quantity: updatedProducts[index].quantity }),
+          }
+        );
         if (!res.ok) throw new Error("Failed to update quantity in API");
       } catch (error) {
         console.error("Error updating quantity:", error);
       }
     } else {
-      // Update local storage if not using API
       localStorage.setItem("bags", JSON.stringify(formattedData));
     }
   };
-  
-
 
   // Remove item from wishlist
 
+  async function Remove(id) {
+    if (jwt) {
+      alert("jwt present");
+      try {
+        const res = await fetch(`/api/admin/bag/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        });
 
-async function Remove(id) {
- 
-  if (jwt) {
-    alert("jwt present")
-    try {
-      const res = await fetch(`/api/admin/bag/${id}`, {
-        method: "DELETE",
-        headers:{
-          "Authorization": `Bearer ${jwt}`,
-        }
-      });
+        if (!res.ok)
+          throw new Error(`Failed to remove item. Status: ${res.status}`);
 
-      if (!res.ok) throw new Error(`Failed to remove item. Status: ${res.status}`);
-
-      setProduct((prevProduct) => prevProduct.filter((item) => item._id !== id));
-      console.log(`Item with id ${id} removed successfully.`);
-    } catch (error) {
-      console.error("Error removing item:", error);
+        setProduct((prevProduct) =>
+          prevProduct.filter((item) => item._id !== id)
+        );
+        console.log(`Item with id ${id} removed successfully.`);
+      } catch (error) {
+        console.error("Error removing item:", error);
+      }
+    } else {
+      const data = JSON.parse(localStorage.getItem("bags") || "[]");
+      if (data.length <= 0) {
+        localStorage.setItem("bags", []);
+      } else {
+        const updatedData = data.filter((val) => val.wishId !== id);
+        localStorage.setItem("bags", JSON.stringify(updatedData));
+        setProduct(updatedData);
+      }
     }
-  } else {
-    const data = JSON.parse(localStorage.getItem("bags") || "[]");
-      if(data.length<=0){
-        localStorage.setItem("bags",[]); 
-      }else{
-    const updatedData = data.filter(val => val.wishId!== id);
-    localStorage.setItem("bags", JSON.stringify(updatedData)); // Save updated array as a JSON string
-    setProduct(updatedData);
-       }
+    setChange((v) => !v);
   }
-  setChange(v => !v);
-}
 
   return (
-    <div className="relative flex flex-col z-50" >
-      <div className="flex flex-col bg-white border-gray-100 hover:border-b-2 hover:border-black p-4 text-black" >
-        <div className="flex  w-full  h-full text-2xl" >
+    <div className="relative flex flex-col z-50">
+      <div className="flex flex-col bg-white border-gray-100 hover:border-b-2 hover:border-black p-4 text-black">
+        <div className="flex  w-full  h-full text-2xl">
           <div className="md:hidden  w-full flex items-center justify-between">
             <div className="flex  w-full justify-between">
-          <button onClick={() => setIsNavOpen(!isNavOpen)}>
-            <FaBars className="text-xl" />
-          </button>
-     
-          <Link href="/search" className="">
-       <FaSearch/>
-       </Link>
-       </div>
-       </div>
+              <button onClick={() => setIsNavOpen(!isNavOpen)}>
+                <FaBars className="text-xl" />
+              </button>
+
+              <Link href="/search" className="">
+                <FaSearch />
+              </Link>
+            </div>
+          </div>
           <div className="w-full hidden md:flex flex-col p-4" ref={navRef}>
-    <div className="flex  w-full items-center justify-between ">
-      <Link href="/">
-        <Image
-          src="/logo.jpg"
-          width={100}
-          height={100}
-          className="w-[100px] h-auto"
-          alt="logo"
-        />
-      </Link>
+            <div className="flex  w-full items-center justify-between ">
+              <Link href="/">
+                <Image
+                  src="/logo.jpg"
+                  width={100}
+                  height={100}
+                  className="w-[100px] h-auto"
+                  alt="logo"
+                />
+              </Link>
 
-      <div className="flex gap-6 items-center">
-        <Link href="/" className="hover:text-purple-600">
-          Home
-        </Link>
-        <Link href="/about" className="hover:text-purple-600">
-          About
-        </Link>
-        <Link href="/moreProducts" className="hover:text-purple-600">
-          Shop
-        </Link>
-        <h1 onClick={() => dispatch(setTrue())} className="hover:text-purple-600">
-          Bag
-        </h1>
-        <Link href="/wishlist" className="hover:text-purple-600">
-          Wishlists
-        </Link>
-        <Link href="/contact" className="hover:text-purple-600">
-          Contact Us
-        </Link>
-        <Link href="/search" >
-       <FaSearch/>
-       </Link>
-        {session?.user ? (
-          <button
-            onClick={() => {
-               signOut()
-            }}
-            className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
-          >
-            Logout
-          </button>
-        ) : (
-          <button
-            onClick={() => router.push("/login")}
-            className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
-          >
-            Login
-          </button>
-        )}
+              <div className="flex gap-6 items-center">
+                <Link href="/" className="hover:text-purple-600">
+                  Home
+                </Link>
+                <Link href="/about" className="hover:text-purple-600">
+                  About
+                </Link>
+                <Link href="/moreProducts" className="hover:text-purple-600">
+                  Shop
+                </Link>
+                <h1
+                  onClick={() => dispatch(setTrue())}
+                  className="hover:text-purple-600"
+                >
+                  Bag
+                </h1>
+                <Link href="/wishlist" className="hover:text-purple-600">
+                  Wishlists
+                </Link>
+                <Link href="/contact" className="hover:text-purple-600">
+                  Contact Us
+                </Link>
+                <Link href="/search">
+                  <FaSearch />
+                </Link>
+                {session?.user ? (
+                  <button
+                    onClick={() => {
+                      signOut();
+                    }}
+                    className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => router.push("/login")}
+                    className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
+                  >
+                    Login
+                  </button>
+                )}
 
-        <div className="flex gap-4 items-center">
-       
-          {session?.user?.role === "admin" && pathname !== "/admin" && (
-    <button 
-      onClick={() => router.push("/admin")} 
-      className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
-    >
-      Go to Admin
-    </button>
-  )}
+                <div className="flex gap-4 items-center">
+                  {session?.user?.role === "admin" && pathname !== "/admin" && (
+                    <button
+                      onClick={() => router.push("/admin")}
+                      className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none"
+                    >
+                      Go to Admin
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-       
-</div>
-  
-      </div>
 
-      <SlideingNavigation auth={auth} setAuth={setAuth} isNavOpen={isNavOpen} setIsNavOpen={setIsNavOpen} product={product}/>
-      {isNavOpen && <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={() => setIsNavOpen(false)} />}
+      <SlideingNavigation
+        auth={auth}
+        setAuth={setAuth}
+        isNavOpen={isNavOpen}
+        setIsNavOpen={setIsNavOpen}
+        product={product}
+      />
+      {isNavOpen && (
+        <div
+          className="fixed inset-0 bg-black opacity-50 z-40"
+          onClick={() => setIsNavOpen(false)}
+        />
+      )}
 
       <BottomNavigationMobile />
-      <CartDrawer totalPrice={totalPrice} product={product} updateQuantity={updateQuantity} Remove={Remove} />
+      <CartDrawer
+        totalPrice={totalPrice}
+        product={product}
+        updateQuantity={updateQuantity}
+        Remove={Remove}
+      />
     </div>
   );
 };

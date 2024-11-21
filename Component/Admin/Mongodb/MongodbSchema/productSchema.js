@@ -23,7 +23,7 @@ const ProductSchema = new mongoose.Schema(
     categories: { type: String },
     moreInformation: { type: String },
     returnExchange: { type: String },
-    description:{type:String}
+    description: { type: String },
   },
   { timestamps: true }
 );

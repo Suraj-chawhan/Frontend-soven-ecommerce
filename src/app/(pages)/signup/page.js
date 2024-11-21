@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { signIn } from 'next-auth/react';
-import { useSession } from 'next-auth/react';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function Signup() {
   const router = useRouter();
@@ -15,44 +15,41 @@ export default function Signup() {
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
 
-
-  const { data: session } = useSession(); // Get session data
+  const { data: session } = useSession();
 
   useEffect(() => {
-    // If session exists (user logged in via Google or custom credentials), store data in localStorage
     if (session) {
       localStorage.setItem("jwt", session.user.accessToken);
       localStorage.setItem("userId", session.user.userId);
       router.push("/");
     }
-  }, [session,router]);
-  
+  }, [session, router]);
 
-  
   const initiateGoogleLogin = async () => {
-    const result = await signIn("google", { callbackUrl: '/' });
+    const result = await signIn("google", { callbackUrl: "/" });
     if (result?.error) {
-      setError('Google login failed');
+      setError("Google login failed");
     } else {
-      // Store the JWT and userId in localStorage after Google login
       if (result?.jwt && result?.user) {
-        localStorage.setItem('jwt', result.jwt);
-        localStorage.setItem('userId', result.user.id);
+        localStorage.setItem("jwt", result.jwt);
+        localStorage.setItem("userId", result.user.id);
         router.push("/");
       }
     }
   };
 
-
   async function call() {
     try {
       const response = await fetch(`/api/auth/register`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name, email, password, lastName
+          name,
+          email,
+          password,
+          lastName,
         }),
       });
 
@@ -75,14 +72,17 @@ export default function Signup() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
- 
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex justify-center items-center mb-6 border border-black p-2 rounded-full">
           <Image src="/google.png" width={40} height={40} alt="google" />
-          <h1 className="ml-4 text-lg font-semibold cursor-pointer" onClick={initiateGoogleLogin}>Sign in with Google</h1>
+          <h1
+            className="ml-4 text-lg font-semibold cursor-pointer"
+            onClick={initiateGoogleLogin}
+          >
+            Sign in with Google
+          </h1>
         </div>
         <div className="space-y-4">
-          {/* Name and Last Name Inputs in Horizontal Layout */}
           <div className="flex space-x-4">
             <input
               type="text"

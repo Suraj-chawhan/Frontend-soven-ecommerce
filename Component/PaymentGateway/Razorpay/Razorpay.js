@@ -1,11 +1,9 @@
-"use client"
-
-
+"use client";
 
 const loadRazorpayScript = () => {
   return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -16,7 +14,7 @@ const fetchData = async (amount) => {
   const res = await fetch("/api/razorpay/getkey");
   const data = await res.json();
   const getkey = data.key;
-  
+
   const re1 = await fetch("/api/razorpay/createOrder", {
     method: "POST",
     headers: {
@@ -26,11 +24,11 @@ const fetchData = async (amount) => {
   });
 
   const data2 = await re1.json();
-  return { getkey, order:data2.order };
+  return { getkey, order: data2.order };
 };
 
 const verifyPayment = async (response) => {
- console.log(response)
+  console.log(response);
   const verifyRes = await fetch("/api/razorpay/verify", {
     method: "POST",
     headers: {
@@ -42,33 +40,42 @@ const verifyPayment = async (response) => {
   return await verifyRes.json();
 };
 
-const postOrder = async (products, jwt,payment_method,estimated_date,formVal) => {
+const postOrder = async (
+  products,
+  jwt,
+  payment_method,
+  estimated_date,
+  formVal
+) => {
   try {
     // Extract required fields from each product
-    const extractedProducts = products?.map(product => ({
+    const extractedProducts = products?.map((product) => ({
       size: product.size,
       color: product.color,
       userId: product.userId,
       img: product.img,
       price: product.price,
       title: product.title,
-      quantity:product.quantity,
+      quantity: product.quantity,
       payment_method,
       estimated_date,
-      address:formVal
+      address: formVal,
     }));
 
-    console.log(extractedProducts)
-    console.log(jwt)
+    console.log(extractedProducts);
+    console.log(jwt);
 
-    const response = await fetch(`${ process.env.NEXT_PUBLIC_API_URL}/api/admin/my-orders`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${jwt}`,
-      },
-      body: JSON.stringify(extractedProducts),
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/admin/my-orders`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify(extractedProducts),
+      }
+    );
 
     if (!response.ok) throw new Error("Failed to post order data");
     const result = await response.json();
@@ -78,16 +85,15 @@ const postOrder = async (products, jwt,payment_method,estimated_date,formVal) =>
   }
 };
 
-
-const deleteOrder = async (products,jwt) => {
+const deleteOrder = async (products, jwt) => {
   try {
     // Loop through each product's ID
     for (const product of products) {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/bag/${product._id}`, {
+      const res = await fetch(`/api/admin/bag/${product._id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${jwt}`, // Include authorization if required
+          Authorization: `Bearer ${jwt}`,
         },
       });
 
@@ -102,10 +108,16 @@ const deleteOrder = async (products,jwt) => {
   }
 };
 
-
-
-
-export const handlePayment = async (amount, products,jwt,showOrderConfirm,estimated_date,formVal,userId) => {  // Pass `router` if you use Next.js router
+export const handlePayment = async (
+  amount,
+  products,
+  jwt,
+  showOrderConfirm,
+  estimated_date,
+  formVal,
+  userId
+) => {
+  // Pass `router` if you use Next.js router
   const isScriptLoaded = await loadRazorpayScript();
   if (!isScriptLoaded) {
     console.error("Razorpay SDK failed to load");
@@ -114,16 +126,15 @@ export const handlePayment = async (amount, products,jwt,showOrderConfirm,estima
 
   try {
     const { getkey, order } = await fetchData(amount);
-       
-   
+
     const options = {
       key: getkey,
-      amount:order.amount,
+      amount: order.amount,
       currency: "INR",
       name: "Acme Corp",
       description: "Test Transaction",
       order_id: order.id,
-      callback_url:"/api/razorpay/verify",
+      callback_url: "/api/razorpay/verify",
       prefill: {
         name: "Gaurav Kumar",
         email: "gaurav.kumar@example.com",
@@ -136,19 +147,23 @@ export const handlePayment = async (amount, products,jwt,showOrderConfirm,estima
         color: "#3399cc",
       },
 
- 
-
-      handler:async function (response) {
-        console.log("Options"+options)
-
-       const  updatedResponse={...response,payment_method:"Razorpay",userId,order_status:"pending",amount:order.amount}
+      handler: async function (response) {
+        console.log("Options" + options);
+        console.log(response);
+        const updatedResponse = {
+          ...response,
+          payment_method: "Razorpay",
+          userId,
+          order_status: "pending",
+          amount: order.amount,
+        };
         const verifyData = await verifyPayment(updatedResponse);
-        
+
         if (verifyData.status) {
           console.log("Payment verification successful:", verifyData);
-          postOrder(products,jwt,"Razorpay",estimated_date,formVal)
-          deleteOrder(products,jwt)
-          showOrderConfirm()
+          postOrder(products, jwt, "Razorpay", estimated_date, formVal);
+          deleteOrder(products, jwt);
+          showOrderConfirm();
         } else {
           console.error("Payment verification failed:", verifyData);
         }

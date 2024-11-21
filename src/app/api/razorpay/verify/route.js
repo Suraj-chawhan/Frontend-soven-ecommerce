@@ -13,8 +13,6 @@ export async function POST(req) {
       userId,
     } = await req.json();
 
-
-
     console.log(
       "Received Data:",
       razorpay_order_id,
@@ -28,22 +26,22 @@ export async function POST(req) {
 
     const razorpaySecret = process.env.RAZORPAY_SECRET;
     const token = await getToken({ req });
- console.log(token)
+
     if (!razorpaySecret || !process.env.NEXT_PUBLIC_API_URL || !token) {
       console.error("Environment variables missing or token not found");
       return new Response(
-        JSON.stringify({ message: "Missing environment variables or unauthorized" }),
+        JSON.stringify({
+          message: "Missing environment variables or unauthorized",
+        }),
         { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // Verify Razorpay signature
     const hmac = crypto.createHmac("sha256", razorpaySecret);
     hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const generated_signature = hmac.digest("hex");
 
     if (generated_signature === razorpay_signature) {
-      // Prepare payment data
       const paymentData = {
         razorpay_order_id,
         razorpay_payment_id,
@@ -79,7 +77,10 @@ export async function POST(req) {
       }
 
       return new Response(
-        JSON.stringify({ message: "Payment verified and saved successfully", status: true }),
+        JSON.stringify({
+          message: "Payment verified and saved successfully",
+          status: true,
+        }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     } else {
@@ -92,7 +93,10 @@ export async function POST(req) {
   } catch (error) {
     console.error("Error in payment verification:", error.message);
     return new Response(
-      JSON.stringify({ message: "Error processing request", error: error.message }),
+      JSON.stringify({
+        message: "Error processing request",
+        error: error.message,
+      }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }

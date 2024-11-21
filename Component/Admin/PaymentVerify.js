@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 function MyOrder() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -18,14 +18,14 @@ function MyOrder() {
       }
 
       try {
-        const response = await fetch('/api/admin/my-orders', {
+        const response = await fetch("/api/admin/my-orders", {
           headers: {
-            "Authorization": `Bearer ${jwt}`,
+            Authorization: `Bearer ${jwt}`,
           },
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch orders');
+          throw new Error("Failed to fetch orders");
         }
 
         const data = await response.json();
@@ -86,14 +86,13 @@ function MyOrder() {
         <table className="min-w-full table-auto">
           <thead>
             <tr className="border-b">
-            <th className="px-4 py-2">razorpay_order_id</th>
-         <th className="px-4 py-2">razorpay_payment_id</th>
-        <th className="px-4 py-2">amount</th>
-           <th className="px-4 py-2">currency</th>
-         <th className="px-4 py-2">order_status</th>
-          <th className="px-4 py-2">payment_method</th>
-        <th className="px-4 py-2">order_data</th>
-
+              <th className="px-4 py-2">razorpay_order_id</th>
+              <th className="px-4 py-2">razorpay_payment_id</th>
+              <th className="px-4 py-2">amount</th>
+              <th className="px-4 py-2">currency</th>
+              <th className="px-4 py-2">order_status</th>
+              <th className="px-4 py-2">payment_method</th>
+              <th className="px-4 py-2">order_data</th>
             </tr>
           </thead>
           <tbody>
@@ -101,15 +100,16 @@ function MyOrder() {
               orders.map((order) => (
                 <tr key={order._id} className="border-b">
                   <td className="px-4 py-2">{order._id}</td>
-                 
+
                   <td className="px-4 py-2">{order.razorpay_order_id}</td>
-                <td className="px-4 py-2">{order.razorpay_payment_id}</td>
-                <td className="px-4 py-2">₹{order.amount / 100}</td>
-                <td className="px-4 py-2">{order.currency}</td>
-                <td className="px-4 py-2">{order.order_status}</td>
-                <td className="px-4 py-2">{order.payment_method}</td>
-                <td className="px-4 py-2">{new Date(order.createdAt).toLocaleDateString()}</td>
-                
+                  <td className="px-4 py-2">{order.razorpay_payment_id}</td>
+                  <td className="px-4 py-2">₹{order.amount / 100}</td>
+                  <td className="px-4 py-2">{order.currency}</td>
+                  <td className="px-4 py-2">{order.order_status}</td>
+                  <td className="px-4 py-2">{order.payment_method}</td>
+                  <td className="px-4 py-2">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </td>
                 </tr>
               ))
             ) : (

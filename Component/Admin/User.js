@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
-import ConfirmationDialog from '../ConfirmRemove';
+import React, { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import ConfirmationDialog from "../ConfirmRemove";
 
 function User() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [jwt, setJwt] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [jwt, setJwt] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [userToRemove, setUserToRemove] = useState(null);
   const { data: session } = useSession();
 
-  // Set JWT from session
   useEffect(() => {
     if (session?.user?.accessToken) {
       setJwt(session.user.accessToken);
@@ -24,10 +23,10 @@ function User() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('/api/auth/register', {
+        const response = await fetch("/api/auth/register", {
           headers: { Authorization: `Bearer ${jwt}` },
         });
-        if (!response.ok) throw new Error('Failed to fetch users');
+        if (!response.ok) throw new Error("Failed to fetch users");
 
         const data = await response.json();
         setUsers(data);
@@ -48,8 +47,9 @@ function User() {
     setSearchQuery(query);
 
     const filtered = users.filter((user) =>
-      ['name', 'lastName', 'email', '_id']
-        .some((key) => user[key]?.toLowerCase().includes(query.toLowerCase()))
+      ["name", "lastName", "email", "_id"].some((key) =>
+        user[key]?.toLowerCase().includes(query.toLowerCase())
+      )
     );
 
     setFilteredUsers(filtered);
@@ -59,19 +59,19 @@ function User() {
   const handleRoleChange = async (userId, newRole) => {
     try {
       const response = await fetch(`/api/auth/register/${userId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${jwt}`,
         },
         body: JSON.stringify({ role: newRole }),
       });
-      if (!response.ok) throw new Error('Failed to update user role');
+      if (!response.ok) throw new Error("Failed to update user role");
 
       const updatedUser = await response.json();
 
       if (updatedUser.email === session?.user?.email) {
-        alert('Your role has been updated. Logging out...');
+        alert("Your role has been updated. Logging out...");
         signOut();
       }
 
@@ -83,7 +83,7 @@ function User() {
       );
     } catch (err) {
       console.error(err.message);
-      alert('Error updating user role');
+      alert("Error updating user role");
     }
   };
 
@@ -99,16 +99,16 @@ function User() {
 
     try {
       const response = await fetch(`/api/auth/register/${userToRemove._id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${jwt}`,
         },
       });
-      if (!response.ok) throw new Error('Failed to remove user');
+      if (!response.ok) throw new Error("Failed to remove user");
 
       if (userToRemove.email === session?.user?.email) {
-        alert('Your account has been removed. Logging out...');
+        alert("Your account has been removed. Logging out...");
         signOut();
       }
 
@@ -120,7 +120,7 @@ function User() {
       setIsDialogOpen(false);
     } catch (err) {
       console.error(err.message);
-      alert('Error removing user');
+      alert("Error removing user");
     } finally {
       setUserToRemove(null);
     }
@@ -175,10 +175,8 @@ function User() {
                 <td className="px-4 py-2">{user.email}</td>
                 <td className="px-4 py-2">
                   <select
-                    value={user.role || 'user'}
-                    onChange={(e) =>
-                      handleRoleChange(user._id, e.target.value)
-                    }
+                    value={user.role || "user"}
+                    onChange={(e) => handleRoleChange(user._id, e.target.value)}
                     className="px-2 py-1 border rounded"
                   >
                     <option value="user">User</option>

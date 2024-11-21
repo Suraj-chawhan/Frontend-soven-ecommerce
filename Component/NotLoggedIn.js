@@ -1,5 +1,5 @@
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { useRouter } from "next/navigation";
 
 function NotLoggedInPage() {
   const router = useRouter();
@@ -9,7 +9,7 @@ function NotLoggedInPage() {
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
         <div className="mb-6">
           <img
-            src="/logo.jpg" // Replace with a relevant lock/login icon
+            src="/logo.jpg"
             alt="Access Denied"
             className="mx-auto w-16 h-16"
           />
@@ -21,16 +21,16 @@ function NotLoggedInPage() {
           Please log in to access your account and manage your dashboard.
         </p>
         <button
-          onClick={() => router.push('/login')} // Navigate to login page
+          onClick={() => router.push("/login")}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300 shadow-md"
         >
           Log In
         </button>
         <div className="mt-6">
           <p className="text-sm text-gray-500">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <span
-              onClick={() => router.push('/signup')} // Navigate to signup page
+              onClick={() => router.push("/signup")}
               className="text-blue-600 hover:underline cursor-pointer"
             >
               Sign up here

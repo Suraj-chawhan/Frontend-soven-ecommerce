@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import LoadingPage from "../../../../Component/LoadingPage";
 import { useRouter } from "next/navigation";
 function Page() {
-    const router=useRouter()
+  const router = useRouter();
   const [sizes, setSizes] = useState([]);
   const [colors, setColors] = useState([]);
   const [price, setPrice] = useState([
@@ -26,13 +26,15 @@ function Page() {
       try {
         const res = await fetch("/api/admin/products");
         const data = await res.json();
-
-        // Extract unique sizes and colors for filters
         const allSizes = [
-          ...new Set(data.flatMap((product) => product.sizes.map((s) => s.size))),
+          ...new Set(
+            data.flatMap((product) => product.sizes.map((s) => s.size))
+          ),
         ];
         const allColors = [
-          ...new Set(data.flatMap((product) => product.colors.map((c) => c.color))),
+          ...new Set(
+            data.flatMap((product) => product.colors.map((c) => c.color))
+          ),
         ];
 
         setSizes(allSizes);
@@ -49,8 +51,6 @@ function Page() {
 
   useEffect(() => {
     let filteredProducts = originalProducts;
-
-    // Filter by sizes
     if (selectedSizes.length > 0) {
       filteredProducts = filteredProducts?.filter((product) =>
         product.sizes.some(
@@ -60,7 +60,6 @@ function Page() {
       );
     }
 
-    // Filter by colors
     if (selectedColors.length > 0) {
       filteredProducts = filteredProducts?.filter((product) =>
         product.colors.some(
@@ -72,13 +71,17 @@ function Page() {
 
     // Filter by price range
     if (price[0].v) {
-      filteredProducts = filteredProducts.filter((product) => product.price < 999);
+      filteredProducts = filteredProducts.filter(
+        (product) => product.price < 999
+      );
     } else if (price[1].v) {
       filteredProducts = filteredProducts.filter(
         (product) => product.price >= 999 && product.price <= 1499
       );
     } else if (price[2].v) {
-      filteredProducts = filteredProducts.filter((product) => product.price > 1499);
+      filteredProducts = filteredProducts.filter(
+        (product) => product.price > 1499
+      );
     }
 
     setProducts(filteredProducts);
@@ -86,7 +89,9 @@ function Page() {
 
   const handlePriceCheckboxChange = (index) => {
     setPrice((prevPrices) =>
-      prevPrices.map((item, i) => (i === index ? { ...item, v: !item.v } : item))
+      prevPrices.map((item, i) =>
+        i === index ? { ...item, v: !item.v } : item
+      )
     );
   };
 
@@ -112,12 +117,12 @@ function Page() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-           <button
-  onClick={() => router.back()}
-  className=" mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
->
-  ← Go Back
-</button>
+      <button
+        onClick={() => router.back()}
+        className=" mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+      >
+        ← Go Back
+      </button>
       <div className="grid grid-cols-4 gap-8">
         {/* Filters Section */}
         <div className="col-span-1 bg-white p-4 rounded-lg shadow-md">

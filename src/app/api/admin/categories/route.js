@@ -3,12 +3,12 @@ import categoriesSchema from "../../../../../Component/Admin/Mongodb/MongodbSche
 import jwt from "jsonwebtoken";
 
 const verifyToken = (req) => {
-  const token = req.headers.get("Authorization")?.split(" ")[1]; // Extract Bearer token
+  const token = req.headers.get("Authorization")?.split(" ")[1];
   if (!token) {
     throw new Error("Authentication token missing");
   }
   try {
-    return jwt.verify(token, process.env.NEXTAUTH_SECRET); // Verify JWT
+    return jwt.verify(token, process.env.NEXTAUTH_SECRET);
   } catch {
     throw new Error("Invalid or expired token");
   }
@@ -17,10 +17,9 @@ const verifyToken = (req) => {
 export async function GET(req) {
   await connectDB();
   try {
-
     const categories = await categoriesSchema.find();
-    console.log(categories)
-    
+    console.log(categories);
+
     return new Response(JSON.stringify(categories));
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }));
@@ -30,11 +29,11 @@ export async function GET(req) {
 export async function POST(req) {
   await connectDB();
   try {
-    const user = verifyToken(req); // Verify token
+    const user = verifyToken(req);
     const body = await req.json();
     const newCategory = new categoriesSchema(body);
     newCategory.save();
-    return new Response(JSON.stringify({message:"success"}));
+    return new Response(JSON.stringify({ message: "success" }));
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }));
   }

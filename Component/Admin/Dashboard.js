@@ -1,42 +1,39 @@
-import { useSession } from 'next-auth/react';
-import React, { useState, useEffect } from 'react';
+import { useSession } from "next-auth/react";
+import React, { useState, useEffect } from "react";
 
 function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
   const [error, setError] = useState(null);
- const{data:session}=useSession()
+  const { data: session } = useSession();
   // Fetch data from the API
   useEffect(() => {
-
-    const jwt=session?.user?.accessToken
+    const jwt = session?.user?.accessToken;
     const fetchDashboardData = async () => {
       try {
-      
-        const productsResponse = await fetch('/api/admin/products');
+        const productsResponse = await fetch("/api/admin/products");
         const productsData = await productsResponse.json();
         setTotalProducts(productsData.length);
 
-        const usersResponse = await fetch('/api/auth/register',{
-          headers:{
-            "Authorization":`Bearer ${jwt}`
-          }
+        const usersResponse = await fetch("/api/auth/register", {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         });
         const usersData = await usersResponse.json();
         setTotalUsers(usersData.length);
 
-  
-        const ordersResponse = await fetch('/api/admin/my-orders',{
-          headers:{
-            "Authorization":`Bearer ${jwt}`
-          }
+        const ordersResponse = await fetch("/api/admin/my-orders", {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
         });
         const ordersData = await ordersResponse.json();
         setTotalOrders(ordersData.length);
       } catch (error) {
-        setError('Error fetching dashboard data.');
-        console.error('Error fetching dashboard data:', error);
+        setError("Error fetching dashboard data.");
+        console.error("Error fetching dashboard data:", error);
       }
     };
 

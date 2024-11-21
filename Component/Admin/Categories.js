@@ -15,19 +15,17 @@ export default function CategoriesPage() {
   const [categoryToRemove, setCategoryToRemove] = useState(null);
   const [jwt, setJwt] = useState("");
 
-  // Update JWT on session change
   useEffect(() => {
     if (session?.user?.accessToken) {
       setJwt(session.user.accessToken);
     }
   }, [session]);
 
-  // Fetch Categories
   useEffect(() => {
     async function fetchCategories() {
       if (!jwt) return;
       try {
-        const response = await fetch("/api/admin/categories")
+        const response = await fetch("/api/admin/categories");
         if (response.ok) {
           const data = await response.json();
           setCategories(data);
@@ -41,21 +39,14 @@ export default function CategoriesPage() {
     fetchCategories();
   }, [val, jwt]);
 
- 
-
-   
-
   const handleUpload = ({ info }) => {
     const imageUrl = info.secure_url;
-   
-    setFormData((prev)=>({...prev,img:imageUrl}))
- 
+
+    setFormData((prev) => ({ ...prev, img: imageUrl }));
   };
 
-
-  // Handle Form Submission
   const handleSubmit = async () => {
-    alert(formData.img)
+    alert(formData.img);
     if (!formData.name || !formData.slug || !formData.img) {
       alert("All fields, including the image, are required.");
       return;
@@ -73,7 +64,7 @@ export default function CategoriesPage() {
       if (response.ok) {
         const data = await response.json();
         setFormData({ name: "", slug: "", img: "" });
-        setVal((v) => !v); // Trigger re-fetch
+        setVal((v) => !v);
         console.log("Category added:", data);
       } else {
         console.error("Failed to add category:", response.statusText);
@@ -83,12 +74,10 @@ export default function CategoriesPage() {
     }
   };
 
-  // Handle Input Changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Confirm Delete Dialog
   const handleDelete = (category) => {
     setCategoryToRemove(category);
     setIsDialogOpen(true);
@@ -97,12 +86,17 @@ export default function CategoriesPage() {
   const confirmRemove = async () => {
     if (!categoryToRemove) return;
     try {
-      const response = await fetch(`/api/admin/categories/${categoryToRemove._id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${jwt}` },
-      });
+      const response = await fetch(
+        `/api/admin/categories/${categoryToRemove._id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${jwt}` },
+        }
+      );
       if (response.ok) {
-        setCategories((prev) => prev.filter((cat) => cat._id !== categoryToRemove._id));
+        setCategories((prev) =>
+          prev.filter((cat) => cat._id !== categoryToRemove._id)
+        );
       } else {
         console.error("Failed to delete category:", response.statusText);
       }
@@ -122,7 +116,9 @@ export default function CategoriesPage() {
     <div className="flex p-8 space-x-6 bg-gray-100 min-h-screen">
       {/* Left Section - Categories List */}
       <div className="w-2/3 bg-white p-6 shadow-lg rounded-lg">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Categories </h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+          Categories{" "}
+        </h2>
         {categories.length > 0 ? (
           categories.map((category) => (
             <div
@@ -148,10 +144,14 @@ export default function CategoriesPage() {
 
       {/* Right Section - Add New Category */}
       <div className="w-1/3 bg-white p-6 shadow-lg rounded-lg text-gray-900">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Add Category</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+          Add Category
+        </h2>
         <div className="space-y-6">
           <div>
-            <label className="block text-gray-700 flex">Category Name {<p className="text-red-500">*</p>}</label>
+            <label className="block text-gray-700 flex">
+              Category Name {<p className="text-red-500">*</p>}
+            </label>
             <input
               type="text"
               name="name"
@@ -163,7 +163,9 @@ export default function CategoriesPage() {
           </div>
 
           <div>
-            <label className="block text-gray-700 flex" >Slug {<p className="text-red-500">*</p>}</label>
+            <label className="block text-gray-700 flex">
+              Slug {<p className="text-red-500">*</p>}
+            </label>
             <input
               type="text"
               name="slug"
@@ -177,18 +179,17 @@ export default function CategoriesPage() {
           <div>
             <label className="block text-gray-700">Upload Image</label>
             <CldUploadWidget uploadPreset="fgl3bmtq" onSuccess={handleUpload}>
-        {({ open }) => (
-          <button
-            type="button"
-            onClick={open}
-        
-            className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            Upload Thumbnail
-          </button>
-        )}
-      </CldUploadWidget>
-          
+              {({ open }) => (
+                <button
+                  type="button"
+                  onClick={open}
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  Upload Thumbnail
+                </button>
+              )}
+            </CldUploadWidget>
+
             {formData.img && (
               <Image
                 src={formData.img}

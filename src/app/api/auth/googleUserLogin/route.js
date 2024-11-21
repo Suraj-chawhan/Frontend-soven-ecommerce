@@ -2,22 +2,19 @@ import GoogleUser from "../../../../../Component/Admin/Mongodb/MongodbSchema/goo
 import connectDB from "../../../../../Component/Admin/Mongodb/Connect";
 import jwt from "jsonwebtoken";
 
-
-
 const verifyToken = (req) => {
-  const token = req.headers.get("Authorization")?.split(" ")[1]; // Assuming Bearer token
+  const token = req.headers.get("Authorization")?.split(" ")[1];
   if (!token) {
     throw new Error("Authentication token missing");
   }
 
   try {
     const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
-    return decoded; // Return the decoded token if verification is successful
+    return decoded;
   } catch (err) {
     throw new Error("Invalid or expired token");
   }
 };
-
 
 export async function GET(req) {
   await connectDB();

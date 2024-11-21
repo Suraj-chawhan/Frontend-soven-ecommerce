@@ -1,8 +1,8 @@
 "use client";
-import Image from 'next/image';
-import React from 'react';
+import Image from "next/image";
+import React from "react";
 
-export default function Bag({ product, updateQuantity, index,Remove}) {
+export default function Bag({ product, updateQuantity, index, Remove }) {
   if (!product) return <div>Loading...</div>;
 
   return (
@@ -45,16 +45,21 @@ export default function Bag({ product, updateQuantity, index,Remove}) {
             <p>{product.size}</p>
           </div>
         </div>
-       
+
         {/* Price and Delivery Info */}
-        </div>
-      
-        <button className="p-3 px-6 border-2 border-gray-300 text-red-600 rounded-md self-center font-semibold hover:bg-red-500 hover:text-white hover:border-red-500 transition duration-200 ease-in-out" onClick={()=>Remove(product.id)}>Remove</button>
-        <div className="flex  self-end mt-auto">
-        <h1 className="text-lg font-semibold">₹{product.price * product.quantity}</h1>    
-       
-   
-        </div>
+      </div>
+
+      <button
+        className="p-3 px-6 border-2 border-gray-300 text-red-600 rounded-md self-center font-semibold hover:bg-red-500 hover:text-white hover:border-red-500 transition duration-200 ease-in-out"
+        onClick={() => Remove(product.id)}
+      >
+        Remove
+      </button>
+      <div className="flex  self-end mt-auto">
+        <h1 className="text-lg font-semibold">
+          ₹{product.price * product.quantity}
+        </h1>
+      </div>
     </div>
   );
 }

@@ -1,35 +1,32 @@
 import Wishlist from "../../../../../Component/Admin/Mongodb/MongodbSchema/wishlistSchema";
 import connectDB from "../../../../../Component/Admin/Mongodb/Connect";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
-// Token verification function
 const verifyToken = (req) => {
-  const token = req.headers.get('Authorization')?.split(' ')[1]; // Assuming Bearer token
+  const token = req.headers.get("Authorization")?.split(" ")[1];
 
   if (!token) {
-    throw new Error('Authentication token missing');
+    throw new Error("Authentication token missing");
   }
 
   try {
-    // Verify the token using your secret key
     const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
-    return decoded; // Return the decoded token if verification is successful
+    return decoded;
   } catch (err) {
-    throw new Error('Invalid or expired token');
+    throw new Error("Invalid or expired token");
   }
 };
 
 export async function POST(req) {
   await connectDB();
   try {
-    // Verify JWT token
-    const user = verifyToken(req); // Token is verified here
+    const user = verifyToken(req);
 
     const requestData = await req.json();
 
     if (Array.isArray(requestData)) {
       try {
-        await Wishlist.insertMany(requestData, { ordered: false }); // `ordered: false` skips duplicates
+        await Wishlist.insertMany(requestData, { ordered: false });
       } catch (err) {
         console.error("Insert Many Error:", err.message);
       }
@@ -37,9 +34,10 @@ export async function POST(req) {
       const wish = new Wishlist(requestData);
       await wish.save();
     }
-    
 
-    return new Response(JSON.stringify({ message: "success" }), { status: 200 });
+    return new Response(JSON.stringify({ message: "success" }), {
+      status: 200,
+    });
   } catch (err) {
     return new Response(
       JSON.stringify({ message: err.message || "An error occurred" }),
@@ -51,8 +49,7 @@ export async function POST(req) {
 export async function GET(req) {
   await connectDB();
   try {
-    // Verify JWT token
-    const user = verifyToken(req); // Token is verified here
+    const user = verifyToken(req);
 
     const data = await Wishlist.find();
     return new Response(JSON.stringify(data), { status: 200 });

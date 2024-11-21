@@ -1,30 +1,26 @@
-import jwt from 'jsonwebtoken';
-import Bag from '../../../../../Component/Admin/Mongodb/MongodbSchema/bagSchema';
-import connectDB from '../../../../../Component/Admin/Mongodb/Connect';
-// Helper function to verify JWT
-const verifyToken = (req) => {
+import jwt from "jsonwebtoken";
+import Bag from "../../../../../Component/Admin/Mongodb/MongodbSchema/bagSchema";
+import connectDB from "../../../../../Component/Admin/Mongodb/Connect";
 
-  const token = req.headers.get('Authorization')?.split(' ')[1]; // Assuming Bearer token
+const verifyToken = (req) => {
+  const token = req.headers.get("Authorization")?.split(" ")[1];
 
   if (!token) {
-    throw new Error('Authentication token missing');
+    throw new Error("Authentication token missing");
   }
 
   try {
-    // Verify the token using your secret key
     const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
-    return decoded; // Return the decoded token if verification is successful
+    return decoded;
   } catch (err) {
-    throw new Error('Invalid or expired token');
+    throw new Error("Invalid or expired token");
   }
 };
 
-
 export async function POST(req) {
-  await connectDB()
+  await connectDB();
   try {
-    // Verify the JWT first
-    const user =verifyToken(req);
+    const user = verifyToken(req);
 
     const data = await req.json();
 
@@ -36,28 +32,27 @@ export async function POST(req) {
     }
 
     return new Response(
-      JSON.stringify({ message: 'Data added successfully' }),
+      JSON.stringify({ message: "Data added successfully" }),
       { status: 200 }
     );
   } catch (err) {
     return new Response(
       JSON.stringify({ message: err.message || "An error occurred" }),
-      { status: 401 } // Unauthorized error status
+      { status: 401 }
     );
   }
 }
 
 export async function GET(req) {
   try {
-    // Verify the JWT first
-   const user=  verifyToken(req);
+    const user = verifyToken(req);
 
     const data = await Bag.find();
     return new Response(JSON.stringify(data), { status: 200 });
   } catch (err) {
     return new Response(
       JSON.stringify({ message: err.message || "An error occurred" }),
-      { status: 401 } // Unauthorized error status
+      { status: 401 }
     );
   }
 }

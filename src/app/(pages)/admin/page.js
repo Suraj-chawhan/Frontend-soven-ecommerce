@@ -24,28 +24,23 @@ export default function AdminPanel() {
   };
 
   useEffect(() => {
-  
-    if (status === "loading") return; // Avoid unnecessary redirects while loading
+    if (status === "loading") return;
 
     if (session?.user?.role !== "admin") {
-      router.push("/"); 
+      router.push("/");
     }
   }, [session, router, status]);
 
-  // Show loading page while session status is "loading"
   if (status === "loading") {
     return <LoadingPage />;
   }
 
-  // Show "Not Logged In" page if no valid session
   if (!session) {
     return <NotLoggedInPage />;
   }
 
   return (
     <div className="flex min-h-screen font-sans bg-gray-900 text-white">
-      
-      {/* Sidebar */}
       <aside className="w-1/4 bg-gradient-to-b from-purple-700 to-purple-900 text-white flex flex-col items-center py-8 shadow-lg">
         <h2 className="text-3xl font-semibold mb-8">Admin Panel</h2>
         <nav className="w-full">

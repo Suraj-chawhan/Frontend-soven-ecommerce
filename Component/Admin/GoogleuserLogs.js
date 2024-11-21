@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { signOut, useSession } from 'next-auth/react';
-import ConfirmationDialog from '../ConfirmRemove';
+import React, { useState, useEffect } from "react";
+import { signOut, useSession } from "next-auth/react";
+import ConfirmationDialog from "../ConfirmRemove";
 
 function GoogleUser() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: session } = useSession();
-  const [jwt, setJwt] = useState('');
+  const [jwt, setJwt] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [UserRemove, setUserRemove] = useState(null);
 
@@ -22,14 +22,14 @@ function GoogleUser() {
   useEffect(() => {
     const fetchGoogleUsers = async () => {
       try {
-        const response = await fetch('/api/auth/googleUserLogin', {
+        const response = await fetch("/api/auth/googleUserLogin", {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
         });
 
         if (!response.ok) {
-          throw new Error('Failed to fetch Google users');
+          throw new Error("Failed to fetch Google users");
         }
 
         const data = await response.json();
@@ -66,36 +66,33 @@ function GoogleUser() {
   const handleRoleChange = async (userId, newRole) => {
     try {
       const response = await fetch(`/api/auth/googleUserLogin/${userId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${jwt}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
         },
         body: JSON.stringify({ role: newRole }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update user role');
+        throw new Error("Failed to update user role");
+      } else {
+        const updatedUser = await response.json();
+        if (updatedUser.email === session?.user?.email) {
+          signOut();
+        }
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === updatedUser._id ? updatedUser : user
+          )
+        );
+
+        setFilteredUsers((prevFilteredUsers) =>
+          prevFilteredUsers.map((user) =>
+            user._id === updatedUser._id ? updatedUser : user
+          )
+        );
       }
-      else{
-
-      const updatedUser = await response.json();
-       if(updatedUser.email===session?.user?.email){
-        signOut()
-       }
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user._id === updatedUser._id ? updatedUser : user
-        )
-      );
-
-      setFilteredUsers((prevFilteredUsers) =>
-        prevFilteredUsers.map((user) =>
-          user._id === updatedUser._id ? updatedUser : user
-        )
-      );
-    
-    }
     } catch (err) {
       console.error(err.message);
     }
@@ -109,35 +106,39 @@ function GoogleUser() {
   const confirmRemove = async () => {
     if (!UserRemove) return;
     try {
-      const response = await fetch(`/api/auth/googleUserLogin/${UserRemove._id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization": `Bearer ${jwt}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to remove the user.');
-      }
-      else{
-     const deletedUser=await response.json()
-     if(deletedUser.email===session?.user?.email){
-      signOut()
-     }
-      // Update state to remove deleted user
-      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== UserRemove._id));
-      setFilteredUsers((prevFilteredUsers) =>
-        prevFilteredUsers.filter((user) => user._id !== UserRemove._id)
+      const response = await fetch(
+        `/api/auth/googleUserLogin/${UserRemove._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
       );
 
-      setIsDialogOpen(false); // Close the dialog
-    }
+      if (!response.ok) {
+        throw new Error("Failed to remove the user.");
+      } else {
+        const deletedUser = await response.json();
+        if (deletedUser.email === session?.user?.email) {
+          signOut();
+        }
+
+        setUsers((prevUsers) =>
+          prevUsers.filter((user) => user._id !== UserRemove._id)
+        );
+        setFilteredUsers((prevFilteredUsers) =>
+          prevFilteredUsers.filter((user) => user._id !== UserRemove._id)
+        );
+
+        setIsDialogOpen(false); // Close the dialog
+      }
     } catch (error) {
-      console.error('Error removing user:', error);
-      alert('Failed to remove the user.');
+      console.error("Error removing user:", error);
+      alert("Failed to remove the user.");
     } finally {
-      setUserRemove(null); // Reset selected user
+      setUserRemove(null);
     }
   };
 
@@ -156,7 +157,9 @@ function GoogleUser() {
 
   return (
     <div className="container mx-auto p-6 text-gray-500">
-      <h1 className="text-2xl font-semibold mb-4">Admin - Google User Management</h1>
+      <h1 className="text-2xl font-semibold mb-4">
+        Admin - Google User Management
+      </h1>
 
       {/* Search Input */}
       <div className="mb-4 flex items-center space-x-2">
@@ -191,13 +194,14 @@ function GoogleUser() {
                   <td className="px-4 py-2">{user.email}</td>
                   <td className="px-4 py-2">
                     <select
-                      value={user.role || 'user'}
-                      onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                      value={user.role || "user"}
+                      onChange={(e) =>
+                        handleRoleChange(user._id, e.target.value)
+                      }
                       className="px-2 py-1 border rounded"
                     >
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
-                     
                     </select>
                   </td>
                   <td className="px-4 py-2">
