@@ -244,7 +244,7 @@ export default function Home() {
             Discover the latest trends in fashion and stand out with our unique
             outfits. Your style, your way.
           </p>
-          <button className="bg-red-600 px-6 py-3 text-lg font-semibold rounded shadow hover:bg-red-700 transition">
+          <button className="bg-red-600 px-6 py-3 text-lg font-semibold rounded shadow hover:bg-red-700 transition" onClick={()=>router.push("/moreProducts")}>
             Shop Now
           </button>
         </div>
