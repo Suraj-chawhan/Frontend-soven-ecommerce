@@ -258,7 +258,7 @@ export default function Home() {
            {
             categories.slice(0,3)?.map(val=>{
               return(
-                <CategoryCard  title={val.name} image={val.img}  />
+                <CategoryCard  key={val._id} title={val.name} image={val.img}  />
               )
             })
            }

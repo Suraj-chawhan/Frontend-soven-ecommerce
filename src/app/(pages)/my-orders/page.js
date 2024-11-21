@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Error from "../../../../Component/ErrorFetch/FetchError";
 import LoadingPage from "../../../../Component/LoadingPage";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 const MyOrdersPage = () => {
   const router=useRouter()
   const [orders, setOrders] = useState([]);
@@ -94,9 +95,11 @@ if(status==="loading"){
             key={order.id}
             className="bg-white shadow-lg rounded-lg p-4 flex flex-col items-center space-y-4"
           >
-            <img
+            <Image
               src={order.img}
               alt={order.title}
+              width={100}
+              height={100}
               className="w-32 h-32 rounded-lg object-cover"
             />
             <div className="w-full text-center">

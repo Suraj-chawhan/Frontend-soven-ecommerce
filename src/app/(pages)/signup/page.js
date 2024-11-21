@@ -25,7 +25,7 @@ export default function Signup() {
       localStorage.setItem("userId", session.user.userId);
       router.push("/");
     }
-  }, [session]);
+  }, [session,router]);
   
 
   

@@ -46,7 +46,7 @@ function WishlistPage() {
       const wishlist = wishlistData ? JSON.parse(wishlistData) : []; // Only parse if wishlistData is not null
       setProduct(wishlist);
     }
-  }, [change, jwt]);
+  }, [change, jwt,userId]);
 
 
   // Remove item from wishlist
