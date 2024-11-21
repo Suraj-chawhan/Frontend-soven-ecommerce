@@ -48,7 +48,7 @@ function Cart({title,img,price,size,slug}) {
     <p>INR {price} rs</p>
     <div className="flex gap-4 text-gray-300 ">   
   {
-    size.map(val=> <Link href={`/checkout/${slug}`} className=' hover:text-red-500 hover:border-b-2 hover:border-black '>{val.size}</Link>)
+    size.map((val,index)=> <Link href={`/checkout/${slug}`} className=' hover:text-red-500 hover:border-b-2 hover:border-black ' key={index}>{val.size}</Link>)
   }
   </div>
 
