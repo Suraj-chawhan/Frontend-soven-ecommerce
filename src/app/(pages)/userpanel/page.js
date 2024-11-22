@@ -350,7 +350,10 @@ export default function CheckoutPage() {
                   showOrderConfirmationPopup,
                   estimated,
                   formVal.address,
-                  userId
+                  userId,
+                  formVal.name,
+                  formVal.pincode,
+                  formVal.contact
                 )
               }
             >

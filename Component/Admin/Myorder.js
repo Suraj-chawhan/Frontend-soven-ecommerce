@@ -76,6 +76,7 @@ function MyOrder() {
           <thead>
             <tr className="border-b">
               <th className="px-4 py-2 text-left">Order ID</th>
+              <th className="px-4 py-2 text-left">Payment ID</th>
               <th className="px-4 py-2 text-left">Title</th>
               <th className="px-4 py-2 text-left">Size</th>
               <th className="px-4 py-2 text-left">Color</th>
@@ -84,23 +85,33 @@ function MyOrder() {
               <th className="px-4 py-2 text-left">Payment Method</th>
               <th className="px-4 py-2 text-left">Estimated Date</th>
               <th className="px-4 py-2 text-left">Address</th>
+              <th className="px-4 py-2 text-left">Name</th>
+              <th className="px-4 py-2 text-left">Pincode</th>
+              <th className="px-4 py-2 text-left">Phone Number</th>
+              <th className="px-4 py-2 text-left"> Order Date</th>
             </tr>
           </thead>
           <tbody>
             {orders.length > 0 ? (
               orders.map((order) => (
                 <tr key={order._id} className="border-b">
-                  <td className="px-4 py-2">{order._id}</td>
+                  <td className="px-4 py-2">{order.razorpay_order_id}</td>
+                  <td className="px-4 py-2">{order.razorpay_payment_id}</td>
                   <td className="px-4 py-2">{order.title}</td>
                   <td className="px-4 py-2">{order.size}</td>
                   <td className="px-4 py-2">{order.color}</td>
                   <td className="px-4 py-2">{order.price}</td>
                   <td className="px-4 py-2">{order.quantity}</td>
                   <td className="px-4 py-2">{order.payment_method}</td>
+
                   <td className="px-4 py-2">
                     {new Date(order.estimated_date).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-2">{order.address}</td>
+                  <td className="px-4 py-2">{order.name}</td>
+                  <td className="px-4 py-2">{order.pincode}</td>
+                  <td className="px-4 py-2">{order.phone_number}</td>
+                  <td className="px-4 py-2">{order.date}</td>
                 </tr>
               ))
             ) : (

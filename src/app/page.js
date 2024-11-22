@@ -166,16 +166,16 @@ export default function Home() {
       className="flex flex-col gap-10 relative overflow-hidden w-full h-full"
       ref={containerRef}
     >
-      <div className="flex w-full h-screen">
+      <div className="hidden md:flex w-full h-screen   ">
         {/* Left Side - Image */}
         <div
-          className="w-[50%] h-full bg-cover bg-center"
+          className="w-[50%] h-full bg-cover bg-center smw[100%]"
           style={{
             backgroundImage: `url(${images[0]?.img})`,
           }}
         ></div>
 
-        <div className="w-[50%] flex flex-col">
+        <div className="w-[50%] flex flex-col  sm:flex-wrap justify-center">
           <div
             className="h-[50%] flex flex-col justify-center items-start p-8 bg-cover bg-center text-white"
             style={{ backgroundImage: `url(${images[1]?.img})` }}
@@ -195,11 +195,14 @@ export default function Home() {
 
           {/* Bottom Half - Categories Section */}
           <div className="h-[50%] bg-gray-100 py-12">
-            <h3 className="text-3xl font-semibold text-center mb-8">
+            <h3 className="text-3xl font-semibold text-center mb-8  text-4xl text-roboto">
               Shop by Category
             </h3>
-            <div className="grid grid-cols-3 gap-4 px-6" ref={categoryRef}>
-              {categories.slice(0, 3)?.map((val) => {
+            <div
+              className="grid grid-cols-2  gap-4 px-6 md:grid-cols-3  "
+              ref={categoryRef}
+            >
+              {categories?.slice(0, 3)?.map((val) => {
                 return (
                   <Link href={`/categories/${val.name}`}>
                     <CategoryCard
@@ -219,11 +222,11 @@ export default function Home() {
         {loading ? <Skeleton height={500} /> : <Banner images={images} />}
       </div>
       <div className="bg-gray-100  py-4 self-center w-full flex flex-col gap-4">
-        <h1 className="flex align-center justify-center font-bold text-3xl products-section">
+        <h1 className="flex align-center justify-center font-bold text-3xl products-section  text-4xl text-poppins">
           Newly Dropped
         </h1>
         <div className="flex gap-4 self-center products-section flex flex-col ">
-          <div className="flex gap-10 ">
+          <div className="flex gap-10  sm:flex-wrap mx-2">
             {loading
               ? Array(5)
                   .fill(0)
@@ -255,10 +258,10 @@ export default function Home() {
 
       {/* Seasonal Favorites */}
       <div className="bg-gray-100  flex  flex-col gap-8 py-8">
-        <h1 className="flex align-center justify-center font-bold text-3xl categories-section">
+        <h1 className="flex align-center justify-center font-bold text-3xl categories-section  text-4xl text-poppins">
           Seasonal Favorites
         </h1>
-        <div className="flex gap-8 self-center categories-section text-white">
+        <div className="flex gap-8 self-center categories-section text-white  sm:flex-wrap mx-2">
           {loading
             ? Array(3)
                 .fill(0)
@@ -277,8 +280,10 @@ export default function Home() {
       </div>
 
       {/* Category Buttons */}
-      <div className="self-center w-full  flex gap-6 flex-col categories-section bg-gray-100 py-6">
-        <h1 className="font-bold self-center text-4xl">Filter By Catgories</h1>
+      <div className="self-center w-full  flex gap-6 flex-col categories-section bg-gray-100 py-6 ">
+        <h1 className="font-bold self-center text-4xl text-poppins">
+          Filter By Catgories
+        </h1>
         <div className="self-center flex  gap-4">
           {categories.map((category) => (
             <button
@@ -292,7 +297,7 @@ export default function Home() {
         </div>
 
         {/* Filtered Products Section */}
-        <div className="self-center flex gap-6 products-section">
+        <div className="self-center flex gap-6 products-section  sm:flex-wrap justify-center">
           {filteredProducts.map((product) => (
             <Link href={`/checkout/${product.slug}`} key={product._id}>
               <Cart
@@ -306,12 +311,12 @@ export default function Home() {
           ))}
         </div>
       </div>
-      {/* Recently Added Products */}
+
       <div className="bg-gray-100 flex flex-col gap-8  py-8">
-        <h1 className="font-bold self-center text-4xl products-section align-center ">
+        <h1 className="font-bold self-center text-4xl products-section align-center  text-4xl text-poppins">
           Recently Added
         </h1>
-        <div className="self-center flex gap-8 products-section">
+        <div className="self-center flex gap-8 products-section  sm:flex-wrap mx-2">
           {loading
             ? Array(4)
                 .fill(0)

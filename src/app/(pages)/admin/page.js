@@ -13,7 +13,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import NotLoggedInPage from "../../../../Component/NotLoggedIn";
 import LoadingPage from "../../../../Component/LoadingPage";
-
+import SocialMedia from "../../../../Component/Admin/SocialMedia";
 export default function AdminPanel() {
   const [section, setSection] = useState("dashboard");
   const { data: session, status } = useSession();
@@ -84,6 +84,11 @@ export default function AdminPanel() {
             onClick={() => handleSectionChange("google-user-logs")}
             isSelected={section === "google-user-logs"}
           />
+          <SidebarButton
+            label="Social Media"
+            onClick={() => handleSectionChange("social-media")}
+            isSelected={section === "social-media"}
+          />
         </nav>
       </aside>
 
@@ -97,6 +102,7 @@ export default function AdminPanel() {
         {section === "payment-verify" && <PaymentVerify />}
         {section === "bannerAdmin" && <BannerAdmin />}
         {section === "google-user-logs" && <GoogleUser />}
+        {section === "social-media" && <SocialMedia />}
       </main>
     </div>
   );

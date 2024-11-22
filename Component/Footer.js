@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import {
   FaInstagram,
   FaLinkedin,
@@ -9,6 +11,17 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 function Footer() {
+  const [social, setSocial] = useState({});
+  const router = useRouter();
+  useEffect(() => {
+    async function call() {
+      const res = await fetch("/api/admin/social-media");
+      const data = await res.json();
+      setSocial(data);
+    }
+
+    call();
+  }, []);
   return (
     <div className="flex flex-col gap-4 border-t-2 border-black p-2 mt-8">
       <div className="flex justify-between items-start">
@@ -48,12 +61,18 @@ function Footer() {
         </p>
         <div className="flex  items-center gap-2"></div>
         <div className="flex gap-4">
-          <FaInstagram size="2em" />
-          <FaFacebook size="2em" />
-          <FaLinkedin size="2em" />
-          <FaTwitter size="2em" />
-          <FaPinterest size="2em" />
-          <FaYoutube size="2em" />
+          <FaInstagram
+            size="2em"
+            onClick={() => router.psuh(social.instagram)}
+          />
+          <FaFacebook size="2em" onClick={() => router.psuh(social.facebook)} />
+          <FaLinkedin size="2em" onClick={() => router.psuh(social.linkdin)} />
+          <FaTwitter size="2em" onClick={() => router.psuh(social.twitter)} />
+          <FaPinterest
+            size="2em"
+            onClick={() => router.psuh(social.pintrest)}
+          />
+          <FaYoutube size="2em" onClick={() => router.psuh(social.youtube)} />
         </div>
       </div>
       <div className="flex justify-center flex-col items-center">

@@ -79,6 +79,8 @@ export async function POST(req) {
       return new Response(
         JSON.stringify({
           message: "Payment verified and saved successfully",
+          razorpay_order_id,
+          razorpay_payment_id,
           status: true,
         }),
         { status: 200, headers: { "Content-Type": "application/json" } }

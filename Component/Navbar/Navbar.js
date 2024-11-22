@@ -359,31 +359,46 @@ const Navbar = () => {
                   src="/logo.jpg"
                   width={100}
                   height={100}
-                  className="w-[100px] h-auto"
+                  className="w-[110px] h-auto"
                   alt="logo"
                 />
               </Link>
 
               <div className="flex gap-6 items-center">
-                <Link href="/" className="hover:text-purple-600">
+                <Link
+                  href="/"
+                  className="hover:text-purple-600 hover:border-b-4 hover:border-purple-500 text-roboto font-bold "
+                >
                   Home
                 </Link>
-                <Link href="/about" className="hover:text-purple-600">
+                <Link
+                  href="/about"
+                  className="hover:text-purple-600 hover:border-b-4 hover:border-purple-500 text-roboto font-bold"
+                >
                   About
                 </Link>
-                <Link href="/moreProducts" className="hover:text-purple-600">
+                <Link
+                  href="/moreProducts"
+                  className="hover:text-purple-600 hover:border-b-4 hover:border-purple-500 text-roboto font-bold "
+                >
                   Shop
                 </Link>
                 <h1
                   onClick={() => dispatch(setTrue())}
-                  className="hover:text-purple-600"
+                  className="hover:text-purple-600 hover:border-b-4 hover:border-purple-500 text-roboto font-bold"
                 >
                   Bag
                 </h1>
-                <Link href="/wishlist" className="hover:text-purple-600">
+                <Link
+                  href="/wishlist"
+                  className="hover:text-purple-600 hover:border-b-4 hover:border-purple-500 text-roboto font-bold"
+                >
                   Wishlists
                 </Link>
-                <Link href="/contact" className="hover:text-purple-600">
+                <Link
+                  href="/contact"
+                  className="hover:text-purple-600 hover:border-b-4 hover:border-purple-500 text-roboto font-bold"
+                >
                   Contact Us
                 </Link>
                 <Link href="/search">

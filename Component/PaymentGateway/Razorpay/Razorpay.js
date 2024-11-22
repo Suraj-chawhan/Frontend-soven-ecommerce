@@ -45,7 +45,12 @@ const postOrder = async (
   jwt,
   payment_method,
   estimated_date,
-  formVal
+  formVal,
+  order_id,
+  payment_id,
+  name,
+  pincode,
+  phone_number
 ) => {
   try {
     // Extract required fields from each product
@@ -60,6 +65,13 @@ const postOrder = async (
       payment_method,
       estimated_date,
       address: formVal,
+      razorpay_order_id: order_id,
+      razorpay_payment_id: payment_id,
+      date: new Date(),
+      status: "Pending",
+      pincode,
+      name,
+      phone_number,
     }));
 
     console.log(extractedProducts);
@@ -115,7 +127,10 @@ export const handlePayment = async (
   showOrderConfirm,
   estimated_date,
   formVal,
-  userId
+  userId,
+  name,
+  pincode,
+  phone_number
 ) => {
   // Pass `router` if you use Next.js router
   const isScriptLoaded = await loadRazorpayScript();
@@ -161,7 +176,18 @@ export const handlePayment = async (
 
         if (verifyData.status) {
           console.log("Payment verification successful:", verifyData);
-          postOrder(products, jwt, "Razorpay", estimated_date, formVal);
+          postOrder(
+            products,
+            jwt,
+            "Razorpay",
+            estimated_date,
+            formVal,
+            verifyData.razorpay_order_id,
+            verifyData.razorpay_payment_id,
+            name,
+            pincode,
+            phone_number
+          );
           deleteOrder(products, jwt);
           showOrderConfirm();
         } else {
