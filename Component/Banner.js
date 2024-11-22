@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+
 function Banner({ images }) {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -25,22 +26,41 @@ function Banner({ images }) {
   };
 
   return (
-    <div className={`relative w-full h-screen overflow-hidden z-10`}>
+    <div className="relative w-full h-screen overflow-hidden z-10">
+      {/* Slides */}
       <div
         className="w-full h-full flex transition-transform duration-500"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
-        {images?.map((img, index) => (
+        {images.map((img, index) => (
           <div key={index} className="relative w-full h-full flex-shrink-0">
             <Image
               src={img.img}
               layout="fill"
               alt={`Slide ${index}`}
               priority
+              className="object-cover"
             />
           </div>
         ))}
       </div>
+
+      {/* Description and Shop Now button */}
+      <div className="absolute top-10 left-10 bg-black bg-opacity-60 text-white p-4 rounded-lg max-w-lg">
+        <h2 className="text-2xl font-bold">
+          {images[currentIndex]?.description}
+        </h2>
+        <button
+          onClick={() =>
+            router.push(`/categories/${images[currentIndex]?.categories}`)
+          }
+          className="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg"
+        >
+          Shop Now
+        </button>
+      </div>
+
+      {/* Navigation buttons */}
       <button
         onClick={prevSlide}
         className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white px-4 py-2"
@@ -53,6 +73,8 @@ function Banner({ images }) {
       >
         Next
       </button>
+
+      {/* Dots indicator */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
         {images.map((_, index) => (
           <button

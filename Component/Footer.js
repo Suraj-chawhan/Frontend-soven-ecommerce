@@ -1,4 +1,5 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import {
@@ -10,76 +11,137 @@ import {
   FaFacebook,
 } from "react-icons/fa";
 import Link from "next/link";
+
 function Footer() {
   const [social, setSocial] = useState({});
   const router = useRouter();
-  useEffect(() => {
-    async function call() {
-      const res = await fetch("/api/admin/social-media");
-      const data = await res.json();
-      setSocial(data);
-    }
 
-    call();
+  useEffect(() => {
+    async function fetchSocialMediaLinks() {
+      try {
+        const res = await fetch("/api/admin/social-media");
+        if (res.ok) {
+          const data = await res.json();
+          setSocial(data);
+        } else {
+          console.error("Failed to fetch social media links");
+        }
+      } catch (error) {
+        console.error("Error fetching social media links:", error);
+      }
+    }
+    fetchSocialMediaLinks();
   }, []);
+
   return (
-    <div className="flex flex-col gap-4 border-t-2 border-black p-2 mt-8">
-      <div className="flex justify-between items-start">
-        <div className="flex:1 flex-col gap-4">
-          <h1>Offline Store</h1>
-          <Link href="/">Find near me</Link>
+    <footer className="bg-gray-900 text-white p-8 mt-12">
+      {/* Top Section */}
+      <div className="flex flex-wrap justify-between gap-8 border-b border-gray-700 pb-8">
+        {/* Offline Store */}
+        <div className="flex-1 min-w-[200px]">
+          <h2 className="text-lg font-bold mb-4">Offline Store</h2>
+          <Link href="/" className="text-gray-400 hover:text-white">
+            Find near me
+          </Link>
         </div>
-        <div className="flex:1 flex-col gap-4">
-          <h1>Get to know us</h1>
-          <ul>
-            <li>Contact us</li>
-            <li>Faqs</li>
-            <li>Blogs</li>
-            <li>Terms and condition</li>
+
+        {/* Get to Know Us */}
+        <div className="flex-1 min-w-[200px]">
+          <h2 className="text-lg font-bold mb-4">Get to Know Us</h2>
+          <ul className="space-y-2">
+            <li>
+              <Link href="/contact" className="text-gray-400 hover:text-white">
+                Contact Us
+              </Link>
+            </li>
+            <li>
+              <Link href="/about" className="text-gray-400 hover:text-white">
+                About Us
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/privacy-policy"
+                className="text-gray-400 hover:text-white"
+              >
+                Privacy Policy
+              </Link>
+            </li>
           </ul>
         </div>
-        <div>
-          <h1>TRACK OR RETURN/EXCHANGE ORDER</h1>
-          <ul>
-            <li>Track Order</li>
-            <li>PLACE RETURN/EXCHANGE REQUEST</li>
-            <li>Return/Excahnge Policy</li>
-          </ul>
-        </div>
-        <div>
-          <h1>Customer Care</h1>
-          <p>Timings: 10 AM - 7 PM (Mon - Sat) </p>
-          <p> Whatsapp : +91 6364430801</p>
-          <p> Instagram: @snitch.co.in</p>
+
+        {/* Customer Care */}
+        <div className="flex-1 min-w-[200px]">
+          <h2 className="text-lg font-bold mb-4">Customer Care</h2>
+          <p className="text-gray-400">Timings: 10 AM - 7 PM (Mon - Sat)</p>
+          <p className="text-gray-400">WhatsApp: +91 6364430801</p>
+          <p className="text-gray-400">Instagram: @oddoutfits.co.in</p>
         </div>
       </div>
-      <div className="flex flex-col gap-6">
-        <h1>Sign up and save</h1>
-        <p>
-          Sign up now and be the first to know about exclusive offers, latest
-          fashion trends & style tips!
+
+      {/* Sign Up and Save Section */}
+      <div className="mt-8 text-center">
+        <Link href="/login">
+          <h2 className="text-lg inline-block font-bold mb-4 text-underline text-blue-900 hover:text-white hover:border-b-2 hover:border-blue-500">
+            Login and Save
+          </h2>
+        </Link>
+        <p className="text-gray-400 max-w-xl mx-auto">
+          Be the first to know about exclusive offers, latest fashion trends,
+          and style tips!
         </p>
-        <div className="flex  items-center gap-2"></div>
-        <div className="flex gap-4">
-          <FaInstagram
-            size="2em"
-            onClick={() => router.psuh(social.instagram)}
-          />
-          <FaFacebook size="2em" onClick={() => router.psuh(social.facebook)} />
-          <FaLinkedin size="2em" onClick={() => router.psuh(social.linkdin)} />
-          <FaTwitter size="2em" onClick={() => router.psuh(social.twitter)} />
-          <FaPinterest
-            size="2em"
-            onClick={() => router.psuh(social.pintrest)}
-          />
-          <FaYoutube size="2em" onClick={() => router.psuh(social.youtube)} />
+        <div className="flex justify-center gap-4 mt-6">
+          {social.instagram && (
+            <FaInstagram
+              size="2em"
+              className="cursor-pointer hover:text-pink-500"
+              onClick={() => router.push(social.instagram)}
+            />
+          )}
+          {social.facebook && (
+            <FaFacebook
+              size="2em"
+              className="cursor-pointer hover:text-blue-500"
+              onClick={() => router.push(social.facebook)}
+            />
+          )}
+          {social.linkedin && (
+            <FaLinkedin
+              size="2em"
+              className="cursor-pointer hover:text-blue-400"
+              onClick={() => router.push(social.linkedin)}
+            />
+          )}
+          {social.twitter && (
+            <FaTwitter
+              size="2em"
+              className="cursor-pointer hover:text-sky-400"
+              onClick={() => router.push(social.twitter)}
+            />
+          )}
+          {social.pinterest && (
+            <FaPinterest
+              size="2em"
+              className="cursor-pointer hover:text-red-600"
+              onClick={() => router.push(social.pinterest)}
+            />
+          )}
+          {social.youtube && (
+            <FaYoutube
+              size="2em"
+              className="cursor-pointer hover:text-red-500"
+              onClick={() => router.push(social.youtube)}
+            />
+          )}
         </div>
       </div>
-      <div className="flex justify-center flex-col items-center">
-        <h1> © 2024 SNITCH</h1>
-        <p>Made in India, for the World 🌍</p>
+
+      {/* Bottom Section */}
+      <div className="mt-8 text-center text-gray-500">
+        <p className="font-bold">© 2024 Odd Outfits</p>
+        <p className="font-bold">Made in India, for the World 🌍</p>
       </div>
-    </div>
+    </footer>
   );
 }
 

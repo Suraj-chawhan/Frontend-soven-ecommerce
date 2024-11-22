@@ -149,10 +149,9 @@ function BannerAdmin() {
     setSelectedCategories(event.target.value);
   };
 
-  function call(banner) {
-    setSelectedCategories(banner.categories);
-    setDescription(banner.description);
-    handleEdit(banner);
+  function Cancel() {
+    setIsEditing((v) => !v);
+    resetForm();
   }
 
   return (
@@ -181,13 +180,13 @@ function BannerAdmin() {
                 {!isEditing ? (
                   <button
                     className="absolute bottom-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded"
-                    onClick={handleEdit}
+                    onClick={() => handleEdit(banner)}
                   >
                     Edit
                   </button>
                 ) : (
                   <button
-                    onClick={() => setIsEditing((val) => !val)}
+                    onClick={Cancel}
                     className="absolute bottom-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded"
                   >
                     Cancel

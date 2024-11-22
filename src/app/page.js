@@ -173,14 +173,21 @@ export default function Home() {
           style={{
             backgroundImage: `url(${images[0]?.img})`,
           }}
-        ></div>
+        >
+          {" "}
+          <h1 className="w-[800px] inline-block absolute font-bold text-roboto top-[700px] left-[100px] text-8xl bg-gradient-to-r from-white via-red-500 to-gray-500 text-transparent bg-clip-text py-2 shadow-lg">
+            Odd Outfits make text professional look
+          </h1>
+        </div>
 
         <div className="w-[50%] flex flex-col  sm:flex-wrap justify-center">
           <div
             className="h-[50%] flex flex-col justify-center items-start p-8 bg-cover bg-center text-white"
             style={{ backgroundImage: `url(${images[1]?.img})` }}
           >
-            <h2 className="text-4xl font-bold mb-4">Style That Speaks</h2>
+            <h2 className="text-8xl font-bold mb-4">
+              Be the StandOut Style That Speaks
+            </h2>
             <p className="mb-6 text-lg">
               Discover the latest trends in fashion and stand out with our
               unique outfits. Your style, your way.
