@@ -163,37 +163,38 @@ export default function Home() {
 
   return (
     <div
-      className="flex flex-col gap-10 relative overflow-hidden w-full h-full"
+      className="flex flex-col gap-10  overflow-hidden w-full h-full"
       ref={containerRef}
     >
-      <div className="hidden md:flex w-full h-screen   ">
+      <div className="flex flex-wrap w-full h-screen">
         {/* Left Side - Image */}
         <div
-          className="w-[50%] h-full bg-cover bg-center smw[100%]"
+          className="w-full md:w-1/2 h-1/2 md:h-full bg-cover bg-center relative"
           style={{
             backgroundImage: `url(${images[0]?.img})`,
           }}
         >
-          {" "}
-          <h1 className="w-[800px] inline-block absolute font-bold text-roboto top-[700px] left-[100px] text-8xl bg-gradient-to-r from-white via-red-500 to-gray-500 text-transparent bg-clip-text py-2 shadow-lg">
+          <h1 className="absolute font-bold text-2xl sm:text-4xl lg:text-6xl xl:text-8xl text-roboto top-[50%] left-[10%] transform -translate-y-1/2 bg-gradient-to-r from-white via-red-500 to-gray-500 text-transparent bg-clip-text py-2 shadow-lg">
             Odd Outfits make text professional look
           </h1>
         </div>
 
-        <div className="w-[50%] flex flex-col  sm:flex-wrap justify-center">
+        {/* Right Side */}
+        <div className="w-full md:w-1/2 flex flex-col">
+          {/* Top Half */}
           <div
-            className="h-[50%] flex flex-col justify-center items-start p-8 bg-cover bg-center text-white"
+            className="h-1/2 flex flex-col justify-center items-start p-6 bg-cover bg-center text-white"
             style={{ backgroundImage: `url(${images[1]?.img})` }}
           >
-            <h2 className="text-8xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4">
               Be the StandOut Style That Speaks
             </h2>
-            <p className="mb-6 text-lg">
+            <p className="mb-6 text-sm sm:text-base lg:text-lg">
               Discover the latest trends in fashion and stand out with our
               unique outfits. Your style, your way.
             </p>
             <button
-              className="bg-red-600 px-6 py-3 text-lg font-semibold rounded shadow hover:bg-red-700 transition"
+              className="bg-red-600 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-lg font-semibold rounded shadow hover:bg-red-700 transition"
               onClick={() => router.push("/moreProducts")}
             >
               Shop Now
@@ -201,31 +202,29 @@ export default function Home() {
           </div>
 
           {/* Bottom Half - Categories Section */}
-          <div className="h-[50%] bg-gray-100 py-12">
-            <h3 className="text-3xl font-semibold text-center mb-8  text-4xl text-roboto">
+          <div className="h-1/2 bg-gray-100 py-8 md:py-12">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-center mb-6 sm:mb-8 text-roboto">
               Shop by Category
             </h3>
             <div
-              className="grid grid-cols-2  gap-4 px-6 md:grid-cols-3  "
+              className="grid grid-cols-2 gap-4 px-4 sm:grid-cols-3"
               ref={categoryRef}
             >
-              {categories?.slice(0, 3)?.map((val) => {
-                return (
-                  <Link href={`/categories/${val.name}`} key={val._id}>
-                    <CategoryCard
-                      key={val._id}
-                      title={val.name}
-                      image={val.img}
-                    />
-                  </Link>
-                );
-              })}
+              {categories?.slice(0, 3)?.map((val) => (
+                <Link href={`/categories/${val.name}`} key={val._id}>
+                  <CategoryCard
+                    key={val._id}
+                    title={val.name}
+                    image={val.img}
+                  />
+                </Link>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="banner-section">
+      <div className=" sm:mt-[400px] md:mt-[0px]">
         {loading ? <Skeleton height={500} /> : <Banner images={images} />}
       </div>
       <div className="bg-gray-100  py-4 self-center w-full flex flex-col gap-4">
