@@ -189,7 +189,7 @@ function Page() {
         {/* Products Section */}
         <div className="col-span-3">
           <h2 className="text-lg font-semibold mb-4">Products</h2>
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {products.map((product, index) => (
               <Link href={`/checkout/${product.slug}`} key={index}>
                 <Cart

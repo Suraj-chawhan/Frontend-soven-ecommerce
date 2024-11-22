@@ -13,7 +13,10 @@ import { setFalse, setTrue } from "../../../../../Component/redux/cartToggle";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import LoadingPage from "../../../../../Component/LoadingPage";
+import { useRouter } from "next/navigation";
+
 function Page() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState({
     a: false,
     b: false,
@@ -80,10 +83,6 @@ function Page() {
     }
     call();
   }, [suggestion]);
-
-  const handleImageClick = (url) => {
-    setThumbnail(url);
-  };
 
   function call(val) {
     if (val === 1) setIsOpen((v) => ({ ...v, a: !v.a }));
@@ -237,58 +236,92 @@ function Page() {
     setSelectedSize(size);
   }
 
+  const handleImageClick = (url) => {
+    setThumbnail(url);
+  };
+
   if (status === "loading") {
     return <LoadingPage />;
   }
 
   return (
-    <div className="flex flex-col gap-4 w-[100%] h-[100%]">
+    <div className="flex flex-col gap-4 w-full h-full p-4">
+      {/* Back Button */}
+
       <button
         onClick={() => router.back()}
-        className="self-start mb-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out transform hover:scale-105"
+        className="self-start mb-4 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300 ease-in-out transform hover:scale-105"
       >
         ← Go Back
       </button>
-
-      <div className="flex gap-8 mx-auto p-4 lg:p-8 border-b-2 border-gray-300 w-full h-full">
-        <div className="flex gap-4  h-full">
-          <div className="flex flex-col gap-4 overflow-y-auto">
-            {product?.sideview?.length > 0 ? (
-              product.sideview.map((val, index) => (
+      <div className="flex flex-col md:flex-row gap-4 w-full h-auto">
+        {/* Side Images */}
+        <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-y-auto w-full md:w-1/4">
+          <div className="flex flex-row md:flex-col gap-4">
+            <Image
+              src={product?.thumbnail}
+              width={80}
+              height={80}
+              alt="Side View Main"
+              className={`cursor-pointer hover:opacity-80 ${
+                thumbnail === product?.thumbnail
+                  ? "border-4 border-blue-500 scale-105"
+                  : ""
+              }`}
+              onClick={() => handleImageClick(product?.thumbnail)}
+            />
+            {product?.sideImages?.length > 0 ? (
+              product.sideImages.map((val, index) => (
                 <Image
                   key={index}
-                  src={val.thumbnail}
-                  width={100}
-                  height={100}
-                  alt={`sideview ${index}`}
-                  onClick={() => handleImageClick(val.thumbnail)}
+                  src={val}
+                  width={80}
+                  height={80}
+                  alt={`Side View ${index}`}
+                  className={`cursor-pointer hover:opacity-80 ${
+                    thumbnail === val
+                      ? "border-4 border-blue-500 scale-105"
+                      : ""
+                  }`}
+                  onClick={() => handleImageClick(val)}
                 />
               ))
             ) : (
-              <h1>No sideview image</h1>
+              <p className="text-gray-500">No side view images available</p>
             )}
-          </div>
-          <div className="w-[100vh] h-[50%] p-4">
-            <Image
-              src={thumbnail}
-              width={100}
-              height={100}
-              className="w-[70%] h-[550px]"
-              alt="thumbnail"
-            />
           </div>
         </div>
 
-        <div className="w-[800px]  h-[100%] flex flex-col gap-8">
+        {/* Main Product Image */}
+        <div className="flex justify-center items-center w-full md:w-1/2">
+          <Image
+            src={thumbnail}
+            width={300}
+            height={300}
+            className="rounded-md shadow-md max-h-[400px] object-contain"
+            alt="Thumbnail"
+          />
+        </div>
+
+        {/* Product Details */}
+        <div className="flex flex-col gap-6 w-full md:w-1/3">
+          {/* Title and Price */}
           <div>
-            <h1 className="text-2xl font-bold">{product?.title}</h1>
-            <p className="text-lg text-gray-600">INR {product?.price}</p>
+            <h1 className="text-xl md:text-2xl font-bold">
+              {product?.title?.toUpperCase()}
+            </h1>
+            <p className="text-lg md:text-xl text-green-600">
+              INR {product?.price + "/-"}
+            </p>
           </div>
+
+          {/* Price Component */}
           <Data price={product?.price} />
 
+          {/* Size Selection */}
           <div>
-            <h2 className="text-lg font-semibold">Select A Size</h2>
-            <div className="flex gap-4 mt-2">
+            <h2 className="text-md md:text-lg font-semibold">Select a Size</h2>
+            <div className="flex gap-2 md:gap-4 mt-2 flex-wrap">
               {size.map((val) =>
                 val.enabled ? (
                   <Button
@@ -301,70 +334,79 @@ function Page() {
                 ) : null
               )}
             </div>
-            <div>
-              <h2 className="text-lg font-semibold">Select A Color</h2>
-              <select
-                value={col}
-                onChange={handleColorChange}
-                className="p-2 border border-gray-300 rounded-md"
-              >
-                <option value="" disabled>
-                  Select Color
-                </option>
-                {colors.map((color, index) =>
-                  color.enabled ? (
-                    <option key={color.color} value={color.color}>
-                      {color.color}
-                    </option>
-                  ) : (
-                    <option key={index}>No color</option>
-                  )
-                )}
-              </select>
-            </div>
           </div>
 
-          <div className="flex gap-4">
+          {/* Color Selection */}
+          <div>
+            <h2 className="text-md md:text-lg font-semibold">Select a Color</h2>
+            <select
+              value={col}
+              onChange={handleColorChange}
+              className="p-2 border border-gray-300 rounded-md mt-2"
+            >
+              <option value="" disabled>
+                Select Color
+              </option>
+              {colors.map((color, index) =>
+                color.enabled ? (
+                  <option key={color.color} value={color.color}>
+                    {color.color}
+                  </option>
+                ) : (
+                  <option key={index}>No color available</option>
+                )
+              )}
+            </select>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex flex-wrap gap-2 md:gap-4">
             <Button
-              val={"Add To Bag"}
+              val="Add To Bag"
               onClick={addToBag}
               enable={col && selectedSize ? true : false}
             />
-            <div className="relative w-[50%]">
+            <div className="relative flex items-center w-full">
               <FaHeart
                 size="1.5em"
-                className="absolute top-1/2 transform -translate-y-1/2 left-4"
-                color="red"
+                className="absolute top-1/2 transform -translate-y-1/2 left-4 text-red-500"
               />
               <Button
-                val={"Add To WishList"}
+                val="Add To Wishlist"
                 enable={true}
                 onClick={AddtoWishList}
               />
             </div>
           </div>
+
+          {/* Descriptions */}
           <Description
             isOpen={isOpen.a}
             call={() => call(1)}
             val={product?.description}
-            title={"Description"}
+            title="Description"
           />
           <Description
             isOpen={isOpen.b}
             call={() => call(2)}
             val={product?.moreInformation}
-            title={"More Information"}
+            title="More Information"
           />
           <Description
             isOpen={isOpen.c}
             call={() => call(3)}
             val={product?.returnExchange}
-            title={"Return Exchange"}
+            title="Return & Exchange"
           />
         </div>
       </div>
-      <h1 className="font-bold text-4xl self-center">You May Like</h1>
-      <div className="flex gap-2">
+
+      {/* Related Products */}
+
+      <h1 className="text-3xl font-bold text-center mt-8 w-full  ">
+        You May Like
+      </h1>
+      <div className="grid grid-cols-1 mx-10 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
         {catagory?.map((val, i) => (
           <Link href={`/checkout/${val.slug}`} key={i}>
             <Cart
