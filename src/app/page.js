@@ -204,7 +204,7 @@ export default function Home() {
             >
               {categories?.slice(0, 3)?.map((val) => {
                 return (
-                  <Link href={`/categories/${val.name}`}>
+                  <Link href={`/categories/${val.name}`} key={val._id}>
                     <CategoryCard
                       key={val._id}
                       title={val.name}
