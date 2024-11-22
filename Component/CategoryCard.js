@@ -1,7 +1,7 @@
 import Image from "next/image";
 export default function CategoryCard({ image, title }) {
   return (
-    <div className="bg-white h-[400px] shadow-lg rounded overflow-hidden shadow-lg rounded   hover:-translate-y-2 hover:scale-105">
+    <div className="bg-white h-[300px] shadow-lg rounded overflow-hidden shadow-lg rounded   hover:-translate-y-2 hover:scale-105">
       <Image
         src={image}
         alt={title}

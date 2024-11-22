@@ -202,7 +202,7 @@ export default function Home() {
           </div>
 
           {/* Bottom Half - Categories Section */}
-          <div className="h-1/2 bg-gray-100 py-8 md:py-12">
+          <div className="h-1/2 bg-gray-100 py-8 md:py-2">
             <h3 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-center mb-6 sm:mb-8 text-roboto">
               Shop by Category
             </h3>
