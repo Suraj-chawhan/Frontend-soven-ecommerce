@@ -33,9 +33,6 @@ function ContactUs() {
     }
   }
 
-  if (status === "loading") {
-    return <LoadingPage />;
-  }
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 text-gray-800">
       <h1 className="text-4xl font-bold text-center mb-8">Contact Us</h1>
