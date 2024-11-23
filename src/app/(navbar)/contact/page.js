@@ -2,18 +2,21 @@
 
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import LoadingPage from "../../../../Component/LoadingPage";
 function ContactUs() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [jwt, setJwt] = useState("");
 
   useEffect(() => {
     if (session?.user?.accessToken) {
       setJwt(session?.user?.accessToken);
+      alert(session?.user?.accessToken);
     }
   }, [session]);
+
   async function Submit() {
     try {
       const res = await fetch("/api/admin/contactus", {
@@ -36,6 +39,9 @@ function ContactUs() {
     }
   }
 
+  if (status === "loading") {
+    return <LoadingPage />;
+  }
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 text-gray-800">
       <h1 className="text-4xl font-bold text-center mb-8">Contact Us</h1>

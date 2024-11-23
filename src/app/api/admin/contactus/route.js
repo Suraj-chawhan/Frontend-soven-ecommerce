@@ -4,15 +4,12 @@ import jwt from "jsonwebtoken";
 
 const verifyToken = (req) => {
   const token = req.headers.get("Authorization")?.split(" ")[1];
-
   if (!token) {
     throw new Error("Authentication token missing");
   }
-
   try {
-    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET);
-    return decoded;
-  } catch (err) {
+    return jwt.verify(token, process.env.NEXTAUTH_SECRET);
+  } catch {
     throw new Error("Invalid or expired token");
   }
 };
@@ -23,7 +20,7 @@ export async function POST(req) {
     const user = verifyToken(req);
 
     const body = await req.json();
-
+    console.log(body);
     const details = new contactUs(body);
 
     await details.save();
