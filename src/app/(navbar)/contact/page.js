@@ -1,17 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 function ContactUs() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const { data: session } = useSession();
+  const [jwt, setJwt] = useState("");
 
+  useEffect(() => {
+    if (session?.user?.accessToken) {
+      setJwt(session?.user?.accessToken);
+    }
+  }, [session]);
   async function Submit() {
     try {
       const res = await fetch("/api/admin/contactus", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer  ${jwt}`,
+        },
         body: JSON.stringify({ name, email, message }),
       });
 
@@ -60,7 +70,7 @@ function ContactUs() {
         </div>
       </div>
 
-      <form className="mt-12 space-y-6 max-w-lg mx-auto">
+      <div className="mt-12 space-y-6 max-w-lg mx-auto">
         <div>
           <label className="block text-lg mb-1" htmlFor="name">
             Name
@@ -109,7 +119,7 @@ function ContactUs() {
         >
           Send Message
         </button>
-      </form>
+      </div>
     </div>
   );
 }

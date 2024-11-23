@@ -1,5 +1,5 @@
-import contactUs from "../../../../../Component/Admin/Mongodb/MongodbSchema/contactusSchema";
 import connectDB from "../../../../../Component/Admin/Mongodb/Connect";
+import contactUs from "../../../../../Component/Admin/Mongodb/MongodbSchema/contactusSchema";
 import jwt from "jsonwebtoken";
 
 const verifyToken = (req) => {
@@ -22,13 +22,9 @@ export async function POST(req) {
   try {
     const user = verifyToken(req);
 
-    const { name, email, message } = await req.json();
+    const body = await req.json();
 
-    const details = new contactUs({
-      name,
-      email,
-      message,
-    });
+    const details = new contactUs(body);
 
     await details.save();
 
