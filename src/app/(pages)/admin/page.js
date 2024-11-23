@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import NotLoggedInPage from "../../../../Component/NotLoggedIn";
 import LoadingPage from "../../../../Component/LoadingPage";
 import SocialMedia from "../../../../Component/Admin/SocialMedia";
+import Contact from "../../../../Component/Admin/ContactUserDetails";
 export default function AdminPanel() {
   const [section, setSection] = useState("dashboard");
   const { data: session, status } = useSession();
@@ -89,6 +90,11 @@ export default function AdminPanel() {
             onClick={() => handleSectionChange("social-media")}
             isSelected={section === "social-media"}
           />
+          <SidebarButton
+            label="Contact User Details"
+            onClick={() => handleSectionChange("contact-us")}
+            isSelected={section === "contact-us"}
+          />
         </nav>
       </aside>
 
@@ -103,6 +109,7 @@ export default function AdminPanel() {
         {section === "bannerAdmin" && <BannerAdmin />}
         {section === "google-user-logs" && <GoogleUser />}
         {section === "social-media" && <SocialMedia />}
+        {section === "contact-us" && <Contact />}
       </main>
     </div>
   );

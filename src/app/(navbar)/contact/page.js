@@ -1,21 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+
 import LoadingPage from "../../../../Component/LoadingPage";
 function ContactUs() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const { data: session, status } = useSession();
-  const [jwt, setJwt] = useState("");
-
-  useEffect(() => {
-    if (session?.user?.accessToken) {
-      setJwt(session?.user?.accessToken);
-      alert(session?.user?.accessToken);
-    }
-  }, [session]);
 
   async function Submit() {
     try {
@@ -23,11 +14,14 @@ function ContactUs() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer  ${jwt}`,
         },
         body: JSON.stringify({ name, email, message }),
       });
 
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.message);
+      }
       if (res.ok) {
         alert("Message send successfully");
         setName("");
