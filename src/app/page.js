@@ -224,7 +224,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className=" sm:mt-[400px] md:mt-[0px]">
+      <div className=" mt-[400px] md:mt-[0px]">
         {loading ? <Skeleton height={500} /> : <Banner images={images} />}
       </div>
       <div className="bg-gray-100  py-4 self-center w-full flex flex-col gap-4">
