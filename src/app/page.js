@@ -224,7 +224,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className=" sm:mt-[400px] md:mt-[0px]">
+      <div className=" sm:mt-[150px] md:mt-[0px]">
         {loading ? <Skeleton height={500} /> : <Banner images={images} />}
       </div>
       <div className="bg-gray-100  py-4 self-center w-full flex flex-col gap-4">
@@ -232,7 +232,7 @@ export default function Home() {
           Newly Dropped
         </h1>
         <div className="flex gap-4 self-center products-section flex flex-col ">
-          <div className="flex gap-10  sm:flex-wrap mx-2">
+          <div className="flex gap-10  sm:flex-wrap justify-center mx-2">
             {loading
               ? Array(5)
                   .fill(0)
@@ -267,7 +267,7 @@ export default function Home() {
         <h1 className="flex align-center justify-center font-bold text-3xl categories-section  text-4xl text-poppins">
           Seasonal Favorites
         </h1>
-        <div className="flex gap-8 self-center categories-section text-white  sm:flex-wrap mx-2">
+        <div className="flex gap-8 self-center categories-section text-white  sm:flex-wrap justify-center mx-2">
           {loading
             ? Array(3)
                 .fill(0)
@@ -322,7 +322,7 @@ export default function Home() {
         <h1 className="font-bold self-center text-4xl products-section align-center  text-4xl text-poppins">
           Recently Added
         </h1>
-        <div className="self-center flex gap-8 products-section  sm:flex-wrap mx-2">
+        <div className="self-center flex gap-8 products-section  sm:flex-wrap justify-center">
           {loading
             ? Array(4)
                 .fill(0)
