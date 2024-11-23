@@ -175,7 +175,7 @@ export default function Home() {
           }}
         >
           <h1 className="absolute font-bold text-2xl sm:text-4xl lg:text-6xl xl:text-8xl text-roboto top-[50%] left-[10%] transform -translate-y-1/2 bg-gradient-to-r from-white via-red-500 to-gray-500 text-transparent bg-clip-text py-2 shadow-lg">
-            Odd Outfits make text professional look
+            Odd Outfits Be Fashionable
           </h1>
         </div>
 
